@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -513,8 +511,27 @@
     const btn = document.querySelector('.call-btn-start');
     btn.textContent = 'Connessione in corso...';
     btn.disabled = true;
-    document.getElementById('tavus-container').classList.add('visible');
-    document.getElementById('tavus-iframe').src = 'https://tavus.daily.co/c530abc18e68d404';
+    try {
+      const userName = document.getElementById('hero-name')?.textContent || 'Utente';
+      const response = await fetch('/api/create-conversation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userName })
+      });
+      const data = await response.json();
+      if (data.conversation_url) {
+        document.getElementById('tavus-container').classList.add('visible');
+        document.getElementById('tavus-iframe').src = data.conversation_url;
+      } else {
+        alert('Errore: ' + JSON.stringify(data));
+        btn.textContent = '▶ Inizia sessione';
+        btn.disabled = false;
+      }
+    } catch (err) {
+      alert('Errore di connessione: ' + err.message);
+      btn.textContent = '▶ Inizia sessione';
+      btn.disabled = false;
+    }
   }
   function endCall() { 
     hideCall();
