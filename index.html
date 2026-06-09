@@ -178,6 +178,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .colore-desc-title { font-size: 14px; font-weight: 500; color: #333; }
 .colore-desc-text { font-size: 13px; color: #666; line-height: 1.6; }
 
+/* PERIODO BUTTONS */
+.periodo-btn { padding: 6px 14px; border-radius: 20px; border: 0.5px solid #e8e8e8; background: #fff; font-size: 12px; cursor: pointer; color: #666; transition: all 0.15s; }
+.periodo-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.periodo-btn:hover { border-color: #999; }
+
 /* MODALS */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; }
 .modal-overlay.visible { display: flex; }
@@ -417,16 +422,40 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="page" id="page-progressi">
     <div class="page-header"><div class="page-title">Progressi</div><div class="page-sub">Monitora la tua evoluzione in ogni sfera della vita</div></div>
     <button class="add-btn" onclick="showModal('modal-progresso')">+ Aggiungi un progresso</button>
-    <div class="sfere-grid">
-      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💼</span><span class="sfera-name">Business</span></div><div class="sfera-pct" id="sfera-business">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-business" style="width:0%;background:#EF9F27"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('business', -10)">−</button><button class="sfera-btn" onclick="updateSfera('business', 10)">+</button></div></div>
-      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">❤️</span><span class="sfera-name">Relazioni</span></div><div class="sfera-pct" id="sfera-relazioni">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-relazioni" style="width:0%;background:#E24B4A"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('relazioni', -10)">−</button><button class="sfera-btn" onclick="updateSfera('relazioni', 10)">+</button></div></div>
-      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">🧠</span><span class="sfera-name">Mente</span></div><div class="sfera-pct" id="sfera-mente">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-mente" style="width:0%;background:#378ADD"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('mente', -10)">−</button><button class="sfera-btn" onclick="updateSfera('mente', 10)">+</button></div></div>
-      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💪</span><span class="sfera-name">Salute</span></div><div class="sfera-pct" id="sfera-salute">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-salute" style="width:0%;background:#97C459"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('salute', -10)">−</button><button class="sfera-btn" onclick="updateSfera('salute', 10)">+</button></div></div>
-      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💰</span><span class="sfera-name">Finanze</span></div><div class="sfera-pct" id="sfera-finanze">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-finanze" style="width:0%;background:#EF9F27"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('finanze', -10)">−</button><button class="sfera-btn" onclick="updateSfera('finanze', 10)">+</button></div></div>
-      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">✨</span><span class="sfera-name">Spiritualità</span></div><div class="sfera-pct" id="sfera-spiritualita">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-spiritualita" style="width:0%;background:#7F77DD"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('spiritualita', -10)">−</button><button class="sfera-btn" onclick="updateSfera('spiritualita', 10)">+</button></div></div>
+
+    <!-- PERIODO SELECTOR -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;">
+      <span style="font-size:13px;color:#666">Mostra gli ultimi:</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="periodo-selector">
+        <button class="periodo-btn active" onclick="setPeriodo(1)" data-mesi="1">1 mese</button>
+        <button class="periodo-btn" onclick="setPeriodo(2)" data-mesi="2">2 mesi</button>
+        <button class="periodo-btn" onclick="setPeriodo(3)" data-mesi="3">3 mesi</button>
+        <button class="periodo-btn" onclick="setPeriodo(6)" data-mesi="6">6 mesi</button>
+        <button class="periodo-btn" onclick="setPeriodo(12)" data-mesi="12">1 anno</button>
+        <button class="periodo-btn" onclick="setPeriodo(24)" data-mesi="24">2 anni</button>
+        <button class="periodo-btn" onclick="setPeriodo(36)" data-mesi="36">3 anni</button>
+        <button class="periodo-btn" onclick="setPeriodo(60)" data-mesi="60">5 anni</button>
+      </div>
     </div>
+
+    <!-- SFERE CARDS - automatiche -->
+    <div class="sfere-grid" id="sfere-grid">
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💼</span><span class="sfera-name">Business</span></div><div class="sfera-pct" id="sfera-business">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-business" style="width:0%;background:#EF9F27"></div></div><div style="font-size:11px;color:#999;margin-top:6px;" id="sfera-count-business">0 attività</div></div>
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">❤️</span><span class="sfera-name">Relazioni</span></div><div class="sfera-pct" id="sfera-relazioni">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-relazioni" style="width:0%;background:#E24B4A"></div></div><div style="font-size:11px;color:#999;margin-top:6px;" id="sfera-count-relazioni">0 attività</div></div>
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">🧠</span><span class="sfera-name">Mente</span></div><div class="sfera-pct" id="sfera-mente">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-mente" style="width:0%;background:#378ADD"></div></div><div style="font-size:11px;color:#999;margin-top:6px;" id="sfera-count-mente">0 attività</div></div>
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💪</span><span class="sfera-name">Salute</span></div><div class="sfera-pct" id="sfera-salute">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-salute" style="width:0%;background:#97C459"></div></div><div style="font-size:11px;color:#999;margin-top:6px;" id="sfera-count-salute">0 attività</div></div>
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💰</span><span class="sfera-name">Finanze</span></div><div class="sfera-pct" id="sfera-finanze">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-finanze" style="width:0%;background:#EF9F27"></div></div><div style="font-size:11px;color:#999;margin-top:6px;" id="sfera-count-finanze">0 attività</div></div>
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">✨</span><span class="sfera-name">Spiritualità</span></div><div class="sfera-pct" id="sfera-spiritualita">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-spiritualita" style="width:0%;background:#7F77DD"></div></div><div style="font-size:11px;color:#999;margin-top:6px;" id="sfera-count-spiritualita">0 attività</div></div>
+    </div>
+
+    <!-- INSIGHT -->
+    <div class="card" id="insight-card" style="margin-bottom:1rem;display:none;">
+      <div class="card-title">💡 Insight del periodo</div>
+      <div id="insight-text" style="font-size:13px;color:#666;line-height:1.6;"></div>
+    </div>
+
     <div class="card">
-      <div class="card-title">Attività recenti</div>
+      <div class="card-title">Attività registrate</div>
       <div id="progressi-list"><div style="font-size:13px;color:#999">Nessuna attività ancora — aggiungi il tuo primo progresso</div></div>
     </div>
   </div>
@@ -691,17 +720,63 @@ async function saveCheckin() {
   loadDashboard();
 }
 
-// SFERE
-function updateSfera(sfera, delta) {
-  sfere[sfera] = Math.max(0, Math.min(100, (sfere[sfera] || 0) + delta));
-  updateSferaUI(sfera, sfere[sfera]);
-  db.from('profiles').update({ sfere }).eq('id', currentUser.id);
+// SFERE - automatiche basate sui progressi
+let currentPeriodo = 1;
+let allProgressi = [];
+
+function setPeriodo(mesi) {
+  currentPeriodo = mesi;
+  document.querySelectorAll('.periodo-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.mesi) === mesi);
+  });
+  calcolaSfere();
 }
-function updateSferaUI(sfera, val) {
-  const el = document.getElementById('sfera-' + sfera);
-  const bar = document.getElementById('sbar-' + sfera);
-  if (el) el.textContent = val + '%';
-  if (bar) bar.style.width = val + '%';
+
+function calcolaSfere() {
+  const sfereList = ['business','relazioni','mente','salute','finanze','spiritualita'];
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - currentPeriodo);
+
+  const filtered = allProgressi.filter(p => p.data && new Date(p.data) >= cutoff);
+  const counts = {};
+  sfereList.forEach(s => counts[s] = 0);
+  filtered.forEach(p => { if (counts[p.sfera] !== undefined) counts[p.sfera]++; });
+
+  const total = Object.values(counts).reduce((a,b) => a+b, 0);
+
+  sfereList.forEach(s => {
+    const pct = total > 0 ? Math.round((counts[s] / total) * 100) : 0;
+    const el = document.getElementById('sfera-' + s);
+    const bar = document.getElementById('sbar-' + s);
+    const cnt = document.getElementById('sfera-count-' + s);
+    if (el) el.textContent = pct + '%';
+    if (bar) bar.style.width = pct + '%';
+    if (cnt) cnt.textContent = counts[s] + ' attività';
+  });
+
+  // Insight
+  if (total > 0) {
+    const sorted = sfereList.sort((a,b) => counts[b] - counts[a]);
+    const top = sorted[0];
+    const bottom = sorted[sorted.length-1];
+    const sfereNomi = { business:'Business', relazioni:'Relazioni', mente:'Mente', salute:'Salute', finanze:'Finanze', spiritualita:'Spiritualità' };
+    let periodoTxt = '';
+    if (currentPeriodo === 1) periodoTxt = 'Nell ultimo mese';
+    else if (currentPeriodo < 12) periodoTxt = 'Negli ultimi ' + currentPeriodo + ' mesi';
+    else if (currentPeriodo === 12) periodoTxt = 'Nell ultimo anno';
+    else periodoTxt = 'Negli ultimi ' + Math.round(currentPeriodo/12) + ' anni';
+    
+    let insight = '<strong>' + periodoTxt + '</strong> hai dedicato piu energia a <strong>' + sfereNomi[top] + '</strong> (' + Math.round(counts[top]/total*100) + '% delle attivita).';
+    if (counts[bottom] === 0) {
+      insight += ' <strong>' + sfereNomi[bottom] + '</strong> non ha ricevuto nessuna attenzione - potrebbe valere la pena dedicarci qualcosa.';
+    } else {
+      insight += ' <strong>' + sfereNomi[bottom] + '</strong> ha ricevuto il minor focus (' + Math.round(counts[bottom]/total*100) + '%).';
+    }
+    document.getElementById('insight-text').innerHTML = insight;
+    document.getElementById('insight-card').style.display = 'block';
+  } else {
+    document.getElementById('insight-card').style.display = 'none';
+  }
 }
 
 // MODALS
@@ -743,6 +818,8 @@ async function saveProgresso() {
 
 async function loadProgressi() {
   const { data } = await db.from('progressi').select('*').eq('user_id', currentUser.id).order('data', { ascending: false });
+  allProgressi = data || [];
+  calcolaSfere();
   const list = document.getElementById('progressi-list');
   if (data && data.length > 0) {
     const sfereEmoji = { business:'💼', relazioni:'❤️', mente:'🧠', salute:'💪', finanze:'💰', spiritualita:'✨' };
