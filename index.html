@@ -652,6 +652,7 @@ async function loadDashboard() {
     sessList.innerHTML = sessioni.map(s => `<div class="session-item"><div class="session-header"><span class="session-date">${s.data_sessione||''}</span><span class="session-tag">${s.blocco_emerso||'Sessione'}</span></div><div class="session-preview">${s.riassunto||s.note||'—'}</div></div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna sessione ancora</div>';
   }
 
+  loadProgressi();
   const { data: blocchi } = await db.from('blocchi').select('*').eq('user_id', currentUser.id);
   const blocchiEl = document.getElementById('blocchi-list');
   if (blocchi && blocchi.length > 0) {
@@ -726,9 +727,38 @@ async function saveProgresso() {
   const note = document.getElementById('prog-note').value;
   if (!titolo) return;
   const today = new Date().toISOString().split('T')[0];
-  await db.from('vittorie').insert({ user_id: currentUser.id, descrizione: titolo, data_vittoria: today, categoria: sfera, note });
+  const { error } = await db.from('progressi').insert({ 
+    user_id: currentUser.id, 
+    sfera: sfera, 
+    titolo: titolo, 
+    note: note,
+    data: today
+  });
+  if (error) { alert('Errore: ' + error.message); return; }
   hideModal('modal-progresso');
-  loadDashboard();
+  document.getElementById('prog-titolo').value = '';
+  document.getElementById('prog-note').value = '';
+  loadProgressi();
+}
+
+async function loadProgressi() {
+  const { data } = await db.from('progressi').select('*').eq('user_id', currentUser.id).order('data', { ascending: false });
+  const list = document.getElementById('progressi-list');
+  if (data && data.length > 0) {
+    const sfereEmoji = { business:'💼', relazioni:'❤️', mente:'🧠', salute:'💪', finanze:'💰', spiritualita:'✨' };
+    list.innerHTML = data.map(p => `
+      <div class="vittoria-item">
+        <div class="vittoria-check">${sfereEmoji[p.sfera]||'⭐'}</div>
+        <div>
+          <div class="vittoria-text">${p.titolo}</div>
+          <div class="vittoria-date">${p.data||''}</div>
+          ${p.note ? '<div style="font-size:12px;color:#666;margin-top:4px">'+p.note+'</div>' : ''}
+          <span class="vittoria-cat">${p.sfera||''}</span>
+        </div>
+      </div>`).join('');
+  } else {
+    list.innerHTML = '<div style="font-size:13px;color:#999">Nessun progresso ancora — aggiungi la tua prima attività</div>';
+  }
 }
 
 // SAVE VITTORIA
