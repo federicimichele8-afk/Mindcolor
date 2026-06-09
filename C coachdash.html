@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindColor</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; }
+
+  .sidebar { width: 240px; background: #1a1a1a; min-height: 100vh; padding: 1.5rem 1rem; display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-logo { color: #fff; font-size: 18px; font-weight: 500; padding: 0.5rem 0.75rem; margin-bottom: 2rem; }
+  .sidebar-logo span { color: #EF9F27; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: #888; font-size: 14px; cursor: pointer; margin-bottom: 4px; text-decoration: none; transition: all 0.15s; }
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-item.active { background: rgba(239,159,39,0.12); color: #EF9F27; }
+  .nav-item.call-btn { background: rgba(239,159,39,0.15); color: #EF9F27; border: 0.5px solid rgba(239,159,39,0.3); margin-top: 8px; }
+  .nav-item.call-btn:hover { background: rgba(239,159,39,0.25); }
+  .nav-icon { font-size: 16px; width: 18px; text-align: center; }
+  .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 0.5px solid rgba(255,255,255,0.08); }
+  .user-info { display: flex; align-items: center; gap: 10px; padding: 8px 4px; }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #EF9F27; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+  .user-name { color: #fff; font-size: 13px; font-weight: 500; }
+  .user-email { color: #666; font-size: 11px; }
+
+  .main { flex: 1; padding: 2rem; overflow-y: auto; }
+
+  .hero { background: #1a1a1a; border-radius: 16px; padding: 2rem; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -50px; right: -50px; width: 220px; height: 220px; border-radius: 50%; background: #EF9F27; opacity: 0.07; pointer-events: none; }
+  .hero::after { content: ''; position: absolute; bottom: -70px; left: 35%; width: 180px; height: 180px; border-radius: 50%; background: #7F77DD; opacity: 0.06; pointer-events: none; }
+  .hero-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
+  .hero-greeting { color: #666; font-size: 13px; margin-bottom: 4px; }
+  .hero-name { color: #fff; font-size: 24px; font-weight: 500; }
+  .hero-badge { background: rgba(239,159,39,0.15); border: 0.5px solid rgba(239,159,39,0.3); color: #EF9F27; font-size: 12px; padding: 6px 14px; border-radius: 20px; white-space: nowrap; }
+  .hero-divider { height: 0.5px; background: rgba(255,255,255,0.08); margin-bottom: 1.5rem; }
+  .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .hero-stat-value { color: #fff; font-size: 28px; font-weight: 500; }
+  .hero-stat-label { color: #666; font-size: 12px; margin-top: 3px; }
+  .hero-stat-delta { font-size: 11px; color: #639922; margin-top: 3px; }
+
+  .color-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.25rem; }
+  .color-card { background: #fff; border-radius: 14px; padding: 1.25rem; border: 0.5px solid #e8e8e8; }
+  .color-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .color-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .color-card-name { font-size: 13px; font-weight: 500; color: #333; }
+  .color-card-pct { font-size: 26px; font-weight: 500; }
+  .color-card-bar { height: 4px; border-radius: 2px; background: #f0f0f0; overflow: hidden; margin-top: 10px; }
+  .color-card-fill { height: 100%; border-radius: 2px; }
+  .color-card-label { font-size: 11px; color: #999; margin-top: 6px; }
+
+  .journey { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.25rem; }
+  .section-title { font-size: 11px; font-weight: 500; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 1.25rem; }
+  .journey-track { display: flex; align-items: flex-start; }
+  .journey-step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+  .journey-step:not(:last-child)::after { content: ''; position: absolute; top: 14px; left: calc(50% + 14px); right: calc(-50% + 14px); height: 2px; background: #e8e8e8; }
+  .journey-step.done:not(:last-child)::after { background: #639922; }
+  .step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; position: relative; z-index: 1; }
+  .step-done { background: #EAF3DE; color: #3B6D11; }
+  .step-active { background: #EF9F27; color: #fff; }
+  .step-future { background: #f5f5f5; color: #bbb; border: 0.5px solid #e8e8e8; }
+  .step-label { font-size: 11px; color: #999; margin-top: 8px; text-align: center; line-height: 1.3; }
+
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .b-card { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; }
+  .next-action { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 10px; background: #f9f9f7; margin-bottom: 8px; cursor: pointer; }
+  .next-action:hover { background: #f0f0ec; }
+  .na-icon { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
+  .na-text { font-size: 13px; color: #333; font-weight: 500; }
+  .na-sub { font-size: 11px; color: #999; margin-top: 2px; }
+  .win-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid #f0f0f0; }
+  .win-item:last-child { border-bottom: none; }
+  .win-check { width: 20px; height: 20px; border-radius: 50%; background: #EAF3DE; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .win-check-icon { color: #3B6D11; font-size: 11px; }
+  .win-text { font-size: 13px; color: #333; }
+  .win-date { font-size: 11px; color: #999; margin-top: 2px; }
+  .blocks-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .block-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 10px; border: 0.5px solid #e8e8e8; background: #fafafa; }
+  .block-name { font-size: 13px; color: #333; }
+  .block-status { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+  .status-done { background: #EAF3DE; color: #3B6D11; }
+  .status-progress { background: #E6F1FB; color: #185FA5; }
+  .status-active { background: #FAEEDA; color: #854F0B; }
+
+  /* Auth overlay */
+  #auth-page { display: flex; position: fixed; inset: 0; background: #0d0d0d; z-index: 2000; align-items: center; justify-content: center; }
+  #auth-page.hidden { display: none; }
+  .auth-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; max-width: 400px; width: 90%; border: 0.5px solid rgba(255,255,255,0.08); }
+  .auth-logo { color: #fff; font-size: 22px; font-weight: 500; margin-bottom: 0.5rem; }
+  .auth-logo span { color: #EF9F27; }
+  .auth-sub { color: #555; font-size: 13px; margin-bottom: 2rem; }
+  .auth-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+  .auth-tab { flex: 1; padding: 8px; border-radius: 8px; border: 0.5px solid #333; background: transparent; color: #555; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .auth-tab.active { background: rgba(239,159,39,0.15); color: #EF9F27; border-color: rgba(239,159,39,0.3); }
+  .auth-input { width: 100%; background: #111; border: 0.5px solid #333; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 14px; margin-bottom: 10px; outline: none; }
+  .auth-input:focus { border-color: #EF9F27; }
+  .auth-btn { width: 100%; background: #EF9F27; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 6px; }
+  .auth-error { color: #E24B4A; font-size: 12px; margin-top: 8px; display: none; }
+
+  /* Onboarding overlay */
+  #onboarding-page { display: none; position: fixed; inset: 0; background: #0d0d0d; z-index: 1500; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem; }
+  #onboarding-page.visible { display: flex; }
+  .onboarding-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; max-width: 520px; width: 100%; border: 0.5px solid rgba(255,255,255,0.08); }
+  .onboarding-step { display: none; }
+  .onboarding-step.active { display: block; }
+  .onboarding-title { color: #fff; font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+  .onboarding-sub { color: #555; font-size: 13px; margin-bottom: 2rem; line-height: 1.6; }
+  .onboarding-highlight { background: rgba(239,159,39,0.1); border: 0.5px solid rgba(239,159,39,0.2); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+  .onboarding-highlight p { color: #EF9F27; font-size: 13px; line-height: 1.6; }
+  .test-btn { display: block; width: 100%; background: #EF9F27; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; text-align: center; text-decoration: none; margin-bottom: 10px; }
+  .skip-btn { display: block; width: 100%; background: transparent; color: #555; border: 0.5px solid #333; padding: 11px; border-radius: 10px; font-size: 13px; cursor: pointer; text-align: center; }
+  .color-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .color-input-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 6px; }
+  .color-input-group input { width: 100%; background: #111; border: 0.5px solid #333; border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 14px; outline: none; }
+  .color-input-group input:focus { border-color: #EF9F27; }
+  .label-giallo { color: #EF9F27; }
+  .label-blu { color: #378ADD; }
+  .label-verde { color: #97C459; }
+  .label-rosso { color: #E24B4A; }
+  .save-btn { width: 100%; background: #EF9F27; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .onboarding-progress { display: flex; gap: 6px; margin-bottom: 2rem; }
+  .progress-dot { flex: 1; height: 3px; border-radius: 2px; background: #333; }
+  .progress-dot.active { background: #EF9F27; }
+
+  /* Call overlay */
+  #call-page { display: none; position: fixed; inset: 0; background: #0d0d0d; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+  #call-page.visible { display: flex; }
+  .call-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; text-align: center; max-width: 420px; width: 90%; border: 0.5px solid rgba(255,255,255,0.08); }
+  .call-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #EF9F27, #e07b10); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 1.25rem; }
+  .call-status { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 0.5rem; }
+  .call-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #639922; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .call-status-text { color: #639922; font-size: 13px; font-weight: 500; }
+  .call-title { color: #fff; font-size: 18px; font-weight: 500; margin-bottom: 8px; }
+  .call-desc { color: #555; font-size: 13px; margin-bottom: 2rem; line-height: 1.6; }
+  .call-btn-start { background: #EF9F27; color: #fff; border: none; padding: 15px 32px; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 10px; }
+  .call-btn-back { background: transparent; color: #555; border: 0.5px solid #333; padding: 11px 32px; border-radius: 12px; font-size: 13px; cursor: pointer; width: 100%; }
+  #tavus-container { display: none; position: absolute; inset: 0; }
+  #tavus-container.visible { display: block; }
+  #tavus-iframe { width: 100%; height: 100%; border: none; }
+  .end-call-btn { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #fff; border: 0.5px solid rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; z-index: 10; }
+</style>
+</head>
+<body>
+
+<!-- Auth overlay -->
+<div id="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">Mind<span>Color</span></div>
+    <div class="auth-sub">Il tuo percorso di crescita personale</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Accedi</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Registrati</button>
+    </div>
+    <input class="auth-input" id="auth-email" type="email" placeholder="Email">
+    <input class="auth-input" id="auth-password" type="password" placeholder="Password">
+    <input class="auth-input" id="auth-name" type="text" placeholder="Il tuo nome" style="display:none">
+    <button class="auth-btn" onclick="handleAuth()">Accedi</button>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<!-- Onboarding overlay -->
+<div id="onboarding-page">
+  <div class="onboarding-card">
+    <div class="onboarding-progress">
+      <div class="progress-dot active" id="dot-1"></div>
+      <div class="progress-dot" id="dot-2"></div>
+    </div>
+
+    <!-- Step 1: Test -->
+    <div class="onboarding-step active" id="step-1">
+      <div class="onboarding-title">Scopri il tuo colore dominante</div>
+      <div class="onboarding-sub">Prima di iniziare il tuo percorso, fai il test dei 4 colori di Gianluca Liguori. Scoprirai il tuo profilo mentale e come comunicare al massimo del tuo potenziale.</div>
+      <div class="onboarding-highlight">
+        <p>🎯 Il test richiede circa 5 minuti. Al termine riceverai via email il tuo profilo completo con le percentuali dei 4 colori.</p>
+      </div>
+      <a class="test-btn" href="https://gianlucamind.vercel.app/" target="_blank" onclick="goToStep2()">Fai il test dei 4 colori →</a>
+      <button class="skip-btn" onclick="goToStep2()">Ho già fatto il test, vai avanti</button>
+    </div>
+
+    <!-- Step 2: Inserisci risultati -->
+    <div class="onboarding-step" id="step-2">
+      <div class="onboarding-title">Inserisci i tuoi risultati</div>
+      <div class="onboarding-sub">Hai ricevuto il report via email? Inserisci qui le percentuali dei 4 colori che hai trovato nel tuo profilo.</div>
+      <div class="color-inputs">
+        <div class="color-input-group">
+          <label class="label-giallo">🟡 Giallo %</label>
+          <input type="number" id="input-giallo" placeholder="es. 42" min="0" max="100">
+        </div>
+        <div class="color-input-group">
+          <label class="label-blu">🔵 Blu %</label>
+          <input type="number" id="input-blu" placeholder="es. 28" min="0" max="100">
+        </div>
+        <div class="color-input-group">
+          <label class="label-verde">🟢 Verde %</label>
+          <input type="number" id="input-verde" placeholder="es. 18" min="0" max="100">
+        </div>
+        <div class="color-input-group">
+          <label class="label-rosso">🔴 Rosso %</label>
+          <input type="number" id="input-rosso" placeholder="es. 12" min="0" max="100">
+        </div>
+      </div>
+      <button class="save-btn" onclick="saveColors()">Salva il mio profilo →</button>
+      <div class="auth-error" id="onboarding-error" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div class="sidebar-logo">Mind<span>Color</span></div>
+  <a class="nav-item active" href="#" onclick="showPage('home')">
+    <span class="nav-icon">⊞</span> Home
+  </a>
+  <a class="nav-item" href="#" onclick="showPage('colori')">
+    <span class="nav-icon">◎</span> I miei colori
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">◈</span> Sessioni
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">↗</span> Progressi
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">✦</span> Vittorie
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">◷</span> Timeline
+  </a>
+  <a class="nav-item call-btn" href="#" onclick="showCall(); return false;">
+    <span class="nav-icon">🎙</span> Parla con Gianluca
+  </a>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <div>
+        <div class="user-name" id="user-name">Caricamento...</div>
+        <div class="user-email" id="user-email"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="hero-greeting">Bentornato nel tuo percorso</div>
+        <div class="hero-name" id="hero-name">Caricamento...</div>
+      </div>
+      <div class="hero-badge" id="hero-badge">⬜ —</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-value" id="stat-sessioni">0</div>
+        <div class="hero-stat-label">Sessioni completate</div>
+        <div class="hero-stat-delta" id="stat-sessioni-delta"></div>
+      </div>
+      <div>
+        <div class="hero-stat-value" id="stat-ansia">—</div>
+        <div class="hero-stat-label">Livello ansia attuale</div>
+        <div class="hero-stat-delta" id="stat-ansia-delta"></div>
+      </div>
+      <div>
+        <div class="hero-stat-value" id="stat-decisioni">0</div>
+        <div class="hero-stat-label">Decisioni autonome</div>
+        <div class="hero-stat-delta" id="stat-decisioni-delta"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-strip">
+    <div class="color-card">
+      <div class="color-card-top"><span class="color-card-name">Giallo</span><div class="color-dot" style="background:#EF9F27"></div></div>
+      <div class="color-card-pct" style="color:#EF9F27" id="pct-giallo">—</div>
+      <div class="color-card-bar"><div class="color-card-fill" id="bar-giallo" style="width:0%;background:#EF9F27"></div></div>
+      <div class="color-card-label" id="label-giallo">—</div>
+    </div>
+    <div class="color-card">
+      <div class="color-card-top"><span class="color-card-name">Blu</span><div class="color-dot" style="background:#378ADD"></div></div>
+      <div class="color-card-pct" style="color:#378ADD" id="pct-blu">—</div>
+      <div class="color-card-bar"><div class="color-card-fill" id="bar-blu" style="width:0%;background:#378ADD"></div></div>
+      <div class="color-card-label" id="label-blu">—</div>
+    </div>
+    <div class="color-card">
+      <div class="color-card-top"><span class="color-card-name">Verde</span><div class="color-dot" style="background:#97C459"></div></div>
+      <div class="color-card-pct" style="color:#639922" id="pct-verde">—</div>
+      <div class="color-card-bar"><div class="color-card-fill" id="bar-verde" style="width:0%;background:#97C459"></div></div>
+      <div class="color-card-label" id="label-verde">—</div>
+    </div>
+    <div class="color-card">
+      <div class="color-card-top"><span class="color-card-name">Rosso</span><div class="color-dot" style="background:#E24B4A"></div></div>
+      <div class="color-card-pct" style="color:#E24B4A" id="pct-rosso">—</div>
+      <div class="color-card-bar"><div class="color-card-fill" id="bar-rosso" style="width:0%;background:#E24B4A"></div></div>
+      <div class="color-card-label" id="label-rosso">—</div>
+    </div>
+  </div>
+
+  <div class="journey">
+    <div class="section-title">Il tuo percorso</div>
+    <div class="journey-track">
+      <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Inizio</div></div>
+      <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Profilo colori</div></div>
+      <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Blocchi identificati</div></div>
+      <div class="journey-step"><div class="step-dot step-active">4</div><div class="step-label">Lavoro sui pattern</div></div>
+      <div class="journey-step"><div class="step-dot step-future">5</div><div class="step-label">Autonomia</div></div>
+      <div class="journey-step"><div class="step-dot step-future">6</div><div class="step-label">Mastery</div></div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="b-card">
+      <div class="section-title">Prossime azioni</div>
+      <div class="next-action" onclick="showCall()"><div class="na-icon">▶</div><div><div class="na-text">Sessione con il coach</div><div class="na-sub">Disponibile ora — clicca per iniziare</div></div></div>
+      <div class="next-action"><div class="na-icon">📄</div><div><div class="na-text">Esercizio quotidiano</div><div class="na-sub">Tecnica delle 3 domande</div></div></div>
+      <div style="margin-top:1.25rem">
+        <div class="section-title">Blocchi identificati</div>
+        <div id="blocchi-list" class="blocks-grid"><div style="font-size:13px;color:#999">Nessun blocco registrato</div></div>
+      </div>
+    </div>
+    <div class="b-card">
+      <div class="section-title">Ultime vittorie</div>
+      <div id="vittorie-list"><div style="font-size:13px;color:#999">Nessuna vittoria registrata ancora</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Call overlay -->
+<div id="call-page">
+  <div class="call-card">
+    <div class="call-avatar">🎙</div>
+    <div class="call-status"><div class="call-status-dot"></div><span class="call-status-text">Disponibile ora</span></div>
+    <div class="call-title">Il tuo coach è pronto</div>
+    <div class="call-desc">Gianluca è qui per te.<br>La sessione inizia non appena clicchi.</div>
+    <button class="call-btn-start" onclick="startCall()">▶ Inizia sessione</button>
+    <button class="call-btn-back" onclick="hideCall()">Torna alla dashboard</button>
+  </div>
+  <div id="tavus-container">
+    <iframe id="tavus-iframe" src="" allow="camera; microphone" allowfullscreen></iframe>
+    <button class="end-call-btn" onclick="endCall()">✕ Termina sessione</button>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://aphxfhuczkasrqvznjps.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwaHhmaHVjemthc3JxdnpuanBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTQwMzAsImV4cCI6MjA5NjU3MDAzMH0.-daz-VWrP0FCDeL6v0stsdfSOUEaVvuoc5l2gfkFnbc';
+  const TAVUS_URL = 'INSERISCI_QUI_IL_LINK_TAVUS';
+
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+  let currentUser = null;
+  let authMode = 'login';
+
+  async function checkSession() {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      document.getElementById('auth-page').classList.add('hidden');
+      const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+      if (!profile || !profile.colore_dominante) {
+        document.getElementById('onboarding-page').classList.add('visible');
+      } else {
+        loadDashboard();
+      }
+    }
+  }
+
+  function switchTab(mode) {
+    authMode = mode;
+    document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (mode==='login'&&i===0)||(mode==='signup'&&i===1)));
+    document.getElementById('auth-name').style.display = mode === 'signup' ? 'block' : 'none';
+    document.querySelector('.auth-btn').textContent = mode === 'login' ? 'Accedi' : 'Registrati';
+  }
+
+  async function handleAuth() {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const name = document.getElementById('auth-name').value;
+    const errEl = document.getElementById('auth-error');
+    errEl.style.display = 'none';
+
+    if (authMode === 'login') {
+      const { data, error } = await db.auth.signInWithPassword({ email, password });
+      if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+      currentUser = data.user;
+    } else {
+      const { data, error } = await db.auth.signUp({ email, password });
+      if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+      // Sign in immediately after signup
+      const { data: loginData, error: loginError } = await db.auth.signInWithPassword({ email, password });
+      if (loginError) { errEl.textContent = loginError.message; errEl.style.display = 'block'; return; }
+      currentUser = loginData.user;
+      // Create profile
+      const { error: insertError } = await db.from('profiles').insert({ 
+        id: currentUser.id, 
+        nome: name || email.split('@')[0], 
+        email: email, 
+        colore_dominante: '', 
+        pct_giallo: 0, 
+        pct_blu: 0, 
+        pct_verde: 0, 
+        pct_rosso: 0 
+      });
+      if (insertError) console.error('Profile insert error:', insertError);
+    }
+    document.getElementById('auth-page').classList.add('hidden');
+    const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+    if (!profile || !profile.colore_dominante) {
+      document.getElementById('onboarding-page').classList.add('visible');
+    } else {
+      loadDashboard();
+    }
+  }
+
+  function goToStep2() {
+    document.getElementById('step-1').classList.remove('active');
+    document.getElementById('step-2').classList.add('active');
+    document.getElementById('dot-1').classList.remove('active');
+    document.getElementById('dot-2').classList.add('active');
+  }
+
+  async function saveColors() {
+    const g = parseInt(document.getElementById('input-giallo').value) || 0;
+    const b = parseInt(document.getElementById('input-blu').value) || 0;
+    const v = parseInt(document.getElementById('input-verde').value) || 0;
+    const r = parseInt(document.getElementById('input-rosso').value) || 0;
+    const errEl = document.getElementById('onboarding-error');
+
+    if (g + b + v + r === 0) { errEl.textContent = 'Inserisci almeno un valore'; errEl.style.display = 'block'; return; }
+
+    const colori = [{ nome: 'Giallo', val: g }, { nome: 'Blu', val: b }, { nome: 'Verde', val: v }, { nome: 'Rosso', val: r }];
+    const dominante = colori.reduce((a, c) => c.val > a.val ? c : a).nome;
+
+    const { error: upsertError } = await db.from('profiles').upsert({
+      id: currentUser.id,
+      email: currentUser.email,
+      nome: currentUser.email.split('@')[0],
+      pct_giallo: g, pct_blu: b, pct_verde: v, pct_rosso: r,
+      colore_dominante: dominante
+    }, { onConflict: 'id' });
+
+    if (upsertError) {
+      console.error('Upsert error:', upsertError);
+      errEl.textContent = 'Errore nel salvataggio: ' + upsertError.message;
+      errEl.style.display = 'block';
+      return;
+    }
+
+    document.getElementById('onboarding-page').classList.remove('visible');
+    loadDashboard();
+  }
+
+  async function loadDashboard() {
+    if (!currentUser) return;
+    const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+    if (profile) {
+      const nome = profile.nome || currentUser.email;
+      const iniziali = nome.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+      document.getElementById('hero-name').textContent = nome;
+      document.getElementById('user-name').textContent = nome;
+      document.getElementById('user-email').textContent = currentUser.email;
+      document.getElementById('user-avatar').textContent = iniziali;
+      const coloreEmoji = { Giallo: '🟡', Blu: '🔵', Verde: '🟢', Rosso: '🔴' };
+      document.getElementById('hero-badge').textContent = (coloreEmoji[profile.colore_dominante] || '⬜') + ' ' + (profile.colore_dominante || '—');
+      ['giallo','blu','verde','rosso'].forEach(c => {
+        const val = profile['pct_' + c] || 0;
+        document.getElementById('pct-' + c).textContent = val + '%';
+        document.getElementById('bar-' + c).style.width = val + '%';
+        const label = c.charAt(0).toUpperCase() + c.slice(1) === profile.colore_dominante ? 'Dominante' : val > 15 ? 'In sviluppo' : 'Obiettivo di crescita';
+        document.getElementById('label-' + c).textContent = label;
+      });
+    }
+
+    const { data: sessioni } = await db.from('sessioni').select('*').eq('user_id', currentUser.id).order('data_sessione', { ascending: false });
+    if (sessioni) {
+      document.getElementById('stat-sessioni').textContent = sessioni.length;
+      if (sessioni.length > 0 && sessioni[0].livello_ansia) document.getElementById('stat-ansia').textContent = sessioni[0].livello_ansia + '%';
+      const totDecisioni = sessioni.reduce((acc, s) => acc + (parseInt(s.decisioni_autonome) || 0), 0);
+      document.getElementById('stat-decisioni').textContent = totDecisioni;
+    }
+
+    const { data: blocchi } = await db.from('blocchi').select('*').eq('user_id', currentUser.id);
+    const blocchiEl = document.getElementById('blocchi-list');
+    if (blocchi && blocchi.length > 0) {
+      const sc = { superato: 'status-done', 'in corso': 'status-progress', attivo: 'status-active' };
+      blocchiEl.innerHTML = blocchi.map(b => `<div class="block-row"><span class="block-name">${b.nome_blocco}</span><span class="block-status ${sc[b.stato?.toLowerCase()]||'status-active'}">${b.stato||'Attivo'}</span></div>`).join('');
+    } else {
+      blocchiEl.innerHTML = '<div style="font-size:13px;color:#999">Nessun blocco registrato</div>';
+    }
+
+    const { data: vittorie } = await db.from('vittorie').select('*').eq('user_id', currentUser.id).order('data_vittoria', { ascending: false }).limit(4);
+    const vittorieEl = document.getElementById('vittorie-list');
+    if (vittorie && vittorie.length > 0) {
+      vittorieEl.innerHTML = vittorie.map(v => `<div class="win-item"><div class="win-check"><span class="win-check-icon">✓</span></div><div><div class="win-text">${v.descrizione}</div><div class="win-date">${v.data_vittoria||''}</div></div></div>`).join('');
+    } else {
+      vittorieEl.innerHTML = '<div style="font-size:13px;color:#999">Nessuna vittoria registrata ancora</div>';
+    }
+  }
+
+  function showCall() { document.getElementById('call-page').classList.add('visible'); }
+  function hideCall() {
+    document.getElementById('call-page').classList.remove('visible');
+    document.getElementById('tavus-container').classList.remove('visible');
+    document.getElementById('tavus-iframe').src = '';
+  }
+  function startCall() {
+    document.getElementById('tavus-container').classList.add('visible');
+    document.getElementById('tavus-iframe').src = TAVUS_URL;
+  }
+  function endCall() { hideCall(); }
+  function showPage(page) {}
+
+  checkSession();
+</script>
+</body>
+</html>
