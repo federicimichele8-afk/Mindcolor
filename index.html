@@ -671,14 +671,36 @@ async function loadDashboard() {
     const vittorieHome = document.getElementById('vittorie-home');
     vittorieHome.innerHTML = vittorie.slice(0,4).map(v => `<div class="win-item"><div class="win-check">✓</div><div><div class="win-text">${v.descrizione}</div><div class="win-date">${v.data_vittoria||''} · ${v.categoria||''}</div></div></div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora</div>';
     const vittorieList = document.getElementById('vittorie-list-full');
-    vittorieList.innerHTML = vittorie.map(v => `<div class="vittoria-item"><div class="vittoria-check">✓</div><div><div class="vittoria-text">${v.descrizione}</div><div class="vittoria-date">${v.data_vittoria||''}</div><span class="vittoria-cat">${v.categoria||''}</span></div></div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora — aggiungine una!</div>';
+    vittorieList.innerHTML = vittorie.map(v => `
+      <div class="vittoria-item" style="position:relative;">
+        <div class="vittoria-check">✓</div>
+        <div style="flex:1;">
+          <div class="vittoria-text">${v.descrizione}</div>
+          <div class="vittoria-date">${v.data_vittoria||''}</div>
+          <span class="vittoria-cat">${v.categoria||''}</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="deleteVittoria('${v.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#999;">🗑</button>
+        </div>
+      </div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora — aggiungine una!</div>';
   }
 
   const { data: sessioni } = await db.from('sessioni').select('*').eq('user_id', currentUser.id).order('data_sessione', { ascending: false });
   if (sessioni) {
     document.getElementById('stat-sessioni').textContent = sessioni.length;
     const sessList = document.getElementById('sessioni-list');
-    sessList.innerHTML = sessioni.map(s => `<div class="session-item"><div class="session-header"><span class="session-date">${s.data_sessione||''}</span><span class="session-tag">${s.blocco_emerso||'Sessione'}</span></div><div class="session-preview">${s.riassunto||s.note||'—'}</div></div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna sessione ancora</div>';
+    sessList.innerHTML = sessioni.map(s => `
+      <div class="session-item" style="position:relative;">
+        <div class="session-header">
+          <span class="session-date">${s.data_sessione||''}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="session-tag">${s.blocco_emerso||'Sessione'}</span>
+            <button onclick="deleteSessione('${s.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:#999;">🗑</button>
+          </div>
+        </div>
+        <div class="session-preview">${s.riassunto||s.note||'—'}</div>
+        ${s.impegno_preso ? '<div style="font-size:12px;color:#EF9F27;margin-top:6px;">→ ' + s.impegno_preso + '</div>' : ''}
+      </div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna sessione ancora</div>';
   }
 
   loadProgressi();
@@ -826,12 +848,13 @@ async function loadProgressi() {
     list.innerHTML = data.map(p => `
       <div class="vittoria-item">
         <div class="vittoria-check">${sfereEmoji[p.sfera]||'⭐'}</div>
-        <div>
+        <div style="flex:1;">
           <div class="vittoria-text">${p.titolo}</div>
           <div class="vittoria-date">${p.data||''}</div>
           ${p.note ? '<div style="font-size:12px;color:#666;margin-top:4px">'+p.note+'</div>' : ''}
           <span class="vittoria-cat">${p.sfera||''}</span>
         </div>
+        <button onclick="deleteProgresso('${p.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#999;flex-shrink:0;">🗑</button>
       </div>`).join('');
   } else {
     list.innerHTML = '<div style="font-size:13px;color:#999">Nessun progresso ancora — aggiungi la tua prima attività</div>';
@@ -885,6 +908,24 @@ function endCall() {
   hideCall();
   document.querySelector('.call-btn-start').textContent = '▶ Inizia sessione';
   document.querySelector('.call-btn-start').disabled = false;
+}
+
+async function deleteVittoria(id) {
+  if (!confirm('Eliminare questa vittoria?')) return;
+  await db.from('vittorie').delete().eq('id', id);
+  loadDashboard();
+}
+
+async function deleteSessione(id) {
+  if (!confirm('Eliminare questa sessione?')) return;
+  await db.from('sessioni').delete().eq('id', id);
+  loadDashboard();
+}
+
+async function deleteProgresso(id) {
+  if (!confirm('Eliminare questo progresso?')) return;
+  await db.from('progressi').delete().eq('id', id);
+  loadProgressi();
 }
 
 checkSession();
