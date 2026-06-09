@@ -6,144 +6,246 @@
 <title>MindColor</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; }
 
-  .sidebar { width: 240px; background: #1a1a1a; min-height: 100vh; padding: 1.5rem 1rem; display: flex; flex-direction: column; flex-shrink: 0; }
-  .sidebar-logo { color: #fff; font-size: 18px; font-weight: 500; padding: 0.5rem 0.75rem; margin-bottom: 2rem; }
-  .sidebar-logo span { color: #EF9F27; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: #888; font-size: 14px; cursor: pointer; margin-bottom: 4px; text-decoration: none; transition: all 0.15s; }
-  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
-  .nav-item.active { background: rgba(239,159,39,0.12); color: #EF9F27; }
-  .nav-item.call-btn { background: rgba(239,159,39,0.15); color: #EF9F27; border: 0.5px solid rgba(239,159,39,0.3); margin-top: 8px; }
-  .nav-item.call-btn:hover { background: rgba(239,159,39,0.25); }
-  .nav-icon { font-size: 16px; width: 18px; text-align: center; }
-  .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 0.5px solid rgba(255,255,255,0.08); }
-  .user-info { display: flex; align-items: center; gap: 10px; padding: 8px 4px; }
-  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #EF9F27; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 500; flex-shrink: 0; }
-  .user-name { color: #fff; font-size: 13px; font-weight: 500; }
-  .user-email { color: #666; font-size: 11px; }
+/* SIDEBAR */
+.sidebar { width: 240px; background: #1a1a1a; min-height: 100vh; padding: 1.5rem 1rem; display: flex; flex-direction: column; flex-shrink: 0; position: fixed; height: 100vh; overflow-y: auto; }
+.sidebar-logo { color: #fff; font-size: 18px; font-weight: 500; padding: 0.5rem 0.75rem; margin-bottom: 2rem; }
+.sidebar-logo span { color: #EF9F27; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: #888; font-size: 14px; cursor: pointer; margin-bottom: 4px; text-decoration: none; transition: all 0.15s; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.nav-item.active { background: rgba(239,159,39,0.12); color: #EF9F27; }
+.nav-item.call-btn { background: rgba(239,159,39,0.15); color: #EF9F27; border: 0.5px solid rgba(239,159,39,0.3); margin-top: 8px; }
+.nav-item.call-btn:hover { background: rgba(239,159,39,0.25); }
+.nav-icon { font-size: 16px; width: 18px; text-align: center; }
+.sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 0.5px solid rgba(255,255,255,0.08); }
+.user-info { display: flex; align-items: center; gap: 10px; padding: 8px 4px; }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #EF9F27; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+.user-name { color: #fff; font-size: 13px; font-weight: 500; }
+.user-email { color: #666; font-size: 11px; }
 
-  .main { flex: 1; padding: 2rem; overflow-y: auto; }
+/* MAIN */
+.main { flex: 1; margin-left: 240px; padding: 2rem; overflow-y: auto; min-height: 100vh; }
+.page { display: none; }
+.page.active { display: block; }
 
-  .hero { background: #1a1a1a; border-radius: 16px; padding: 2rem; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
-  .hero::before { content: ''; position: absolute; top: -50px; right: -50px; width: 220px; height: 220px; border-radius: 50%; background: #EF9F27; opacity: 0.07; pointer-events: none; }
-  .hero::after { content: ''; position: absolute; bottom: -70px; left: 35%; width: 180px; height: 180px; border-radius: 50%; background: #7F77DD; opacity: 0.06; pointer-events: none; }
-  .hero-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
-  .hero-greeting { color: #666; font-size: 13px; margin-bottom: 4px; }
-  .hero-name { color: #fff; font-size: 24px; font-weight: 500; }
-  .hero-badge { background: rgba(239,159,39,0.15); border: 0.5px solid rgba(239,159,39,0.3); color: #EF9F27; font-size: 12px; padding: 6px 14px; border-radius: 20px; white-space: nowrap; }
-  .hero-divider { height: 0.5px; background: rgba(255,255,255,0.08); margin-bottom: 1.5rem; }
-  .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-  .hero-stat-value { color: #fff; font-size: 28px; font-weight: 500; }
-  .hero-stat-label { color: #666; font-size: 12px; margin-top: 3px; }
-  .hero-stat-delta { font-size: 11px; color: #639922; margin-top: 3px; }
+/* HERO */
+.hero { background: #1a1a1a; border-radius: 16px; padding: 2rem; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -50px; right: -50px; width: 220px; height: 220px; border-radius: 50%; background: #EF9F27; opacity: 0.07; pointer-events: none; }
+.hero::after { content: ''; position: absolute; bottom: -70px; left: 35%; width: 180px; height: 180px; border-radius: 50%; background: #7F77DD; opacity: 0.06; pointer-events: none; }
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
+.hero-greeting { color: #666; font-size: 13px; margin-bottom: 4px; }
+.hero-name { color: #fff; font-size: 24px; font-weight: 500; }
+.hero-badge { background: rgba(239,159,39,0.15); border: 0.5px solid rgba(239,159,39,0.3); color: #EF9F27; font-size: 12px; padding: 6px 14px; border-radius: 20px; white-space: nowrap; }
+.hero-divider { height: 0.5px; background: rgba(255,255,255,0.08); margin-bottom: 1.5rem; }
+.hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.hero-stat-value { color: #fff; font-size: 28px; font-weight: 500; }
+.hero-stat-label { color: #666; font-size: 12px; margin-top: 3px; }
+.hero-stat-delta { font-size: 11px; color: #639922; margin-top: 3px; }
 
-  .color-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.25rem; }
-  .color-card { background: #fff; border-radius: 14px; padding: 1.25rem; border: 0.5px solid #e8e8e8; }
-  .color-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .color-dot { width: 10px; height: 10px; border-radius: 50%; }
-  .color-card-name { font-size: 13px; font-weight: 500; color: #333; }
-  .color-card-pct { font-size: 26px; font-weight: 500; }
-  .color-card-bar { height: 4px; border-radius: 2px; background: #f0f0f0; overflow: hidden; margin-top: 10px; }
-  .color-card-fill { height: 100%; border-radius: 2px; }
-  .color-card-label { font-size: 11px; color: #999; margin-top: 6px; }
+/* CHECK-IN */
+.checkin-card { background: #fff; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.25rem; border: 0.5px solid #e8e8e8; }
+.checkin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.checkin-title { font-size: 15px; font-weight: 500; color: #333; }
+.checkin-subtitle { font-size: 13px; color: #999; margin-top: 2px; }
+.checkin-modes { display: flex; gap: 8px; margin-bottom: 1rem; }
+.checkin-mode-btn { padding: 6px 14px; border-radius: 20px; border: 0.5px solid #e8e8e8; background: #fff; font-size: 12px; cursor: pointer; color: #666; transition: all 0.15s; }
+.checkin-mode-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.checkin-input { width: 100%; border: 0.5px solid #e8e8e8; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #333; outline: none; resize: none; min-height: 80px; font-family: inherit; }
+.checkin-input:focus { border-color: #EF9F27; }
+.checkin-emotions { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+.emotion-btn { padding: 6px 14px; border-radius: 20px; border: 0.5px solid #e8e8e8; background: #fff; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+.emotion-btn.selected { background: #FAEEDA; border-color: #EF9F27; color: #854F0B; }
+.checkin-submit { background: #1a1a1a; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; cursor: pointer; }
+.checkin-done { background: #EAF3DE; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #3B6D11; display: none; }
 
-  .journey { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.25rem; }
-  .section-title { font-size: 11px; font-weight: 500; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 1.25rem; }
-  .journey-track { display: flex; align-items: flex-start; }
-  .journey-step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
-  .journey-step:not(:last-child)::after { content: ''; position: absolute; top: 14px; left: calc(50% + 14px); right: calc(-50% + 14px); height: 2px; background: #e8e8e8; }
-  .journey-step.done:not(:last-child)::after { background: #639922; }
-  .step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; position: relative; z-index: 1; }
-  .step-done { background: #EAF3DE; color: #3B6D11; }
-  .step-active { background: #EF9F27; color: #fff; }
-  .step-future { background: #f5f5f5; color: #bbb; border: 0.5px solid #e8e8e8; }
-  .step-label { font-size: 11px; color: #999; margin-top: 8px; text-align: center; line-height: 1.3; }
+/* COLOR CARDS */
+.color-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.25rem; }
+.color-card { background: #fff; border-radius: 14px; padding: 1.25rem; border: 0.5px solid #e8e8e8; }
+.color-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.color-dot { width: 10px; height: 10px; border-radius: 50%; }
+.color-card-name { font-size: 13px; font-weight: 500; color: #333; }
+.color-card-pct { font-size: 26px; font-weight: 500; }
+.color-card-bar { height: 4px; border-radius: 2px; background: #f0f0f0; overflow: hidden; margin-top: 10px; }
+.color-card-fill { height: 100%; border-radius: 2px; }
+.color-card-label { font-size: 11px; color: #999; margin-top: 6px; }
 
-  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .b-card { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; }
-  .next-action { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 10px; background: #f9f9f7; margin-bottom: 8px; cursor: pointer; }
-  .next-action:hover { background: #f0f0ec; }
-  .na-icon { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
-  .na-text { font-size: 13px; color: #333; font-weight: 500; }
-  .na-sub { font-size: 11px; color: #999; margin-top: 2px; }
-  .win-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid #f0f0f0; }
-  .win-item:last-child { border-bottom: none; }
-  .win-check { width: 20px; height: 20px; border-radius: 50%; background: #EAF3DE; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-  .win-check-icon { color: #3B6D11; font-size: 11px; }
-  .win-text { font-size: 13px; color: #333; }
-  .win-date { font-size: 11px; color: #999; margin-top: 2px; }
-  .blocks-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .block-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 10px; border: 0.5px solid #e8e8e8; background: #fafafa; }
-  .block-name { font-size: 13px; color: #333; }
-  .block-status { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
-  .status-done { background: #EAF3DE; color: #3B6D11; }
-  .status-progress { background: #E6F1FB; color: #185FA5; }
-  .status-active { background: #FAEEDA; color: #854F0B; }
+/* JOURNEY */
+.journey { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.25rem; }
+.section-title { font-size: 11px; font-weight: 500; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 1.25rem; }
+.journey-track { display: flex; align-items: flex-start; }
+.journey-step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+.journey-step:not(:last-child)::after { content: ''; position: absolute; top: 14px; left: calc(50% + 14px); right: calc(-50% + 14px); height: 2px; background: #e8e8e8; }
+.journey-step.done:not(:last-child)::after { background: #639922; }
+.step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; position: relative; z-index: 1; }
+.step-done { background: #EAF3DE; color: #3B6D11; }
+.step-active { background: #EF9F27; color: #fff; }
+.step-future { background: #f5f5f5; color: #bbb; border: 0.5px solid #e8e8e8; }
+.step-label { font-size: 11px; color: #999; margin-top: 8px; text-align: center; line-height: 1.3; }
 
-  /* Auth overlay */
-  #auth-page { display: flex; position: fixed; inset: 0; background: #0d0d0d; z-index: 2000; align-items: center; justify-content: center; }
-  #auth-page.hidden { display: none; }
-  .auth-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; max-width: 400px; width: 90%; border: 0.5px solid rgba(255,255,255,0.08); }
-  .auth-logo { color: #fff; font-size: 22px; font-weight: 500; margin-bottom: 0.5rem; }
-  .auth-logo span { color: #EF9F27; }
-  .auth-sub { color: #555; font-size: 13px; margin-bottom: 2rem; }
-  .auth-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
-  .auth-tab { flex: 1; padding: 8px; border-radius: 8px; border: 0.5px solid #333; background: transparent; color: #555; font-size: 13px; cursor: pointer; transition: all 0.15s; }
-  .auth-tab.active { background: rgba(239,159,39,0.15); color: #EF9F27; border-color: rgba(239,159,39,0.3); }
-  .auth-input { width: 100%; background: #111; border: 0.5px solid #333; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 14px; margin-bottom: 10px; outline: none; }
-  .auth-input:focus { border-color: #EF9F27; }
-  .auth-btn { width: 100%; background: #EF9F27; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 6px; }
-  .auth-error { color: #E24B4A; font-size: 12px; margin-top: 8px; display: none; }
+/* BOTTOM GRID */
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.b-card { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; }
+.next-action { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 10px; background: #f9f9f7; margin-bottom: 8px; cursor: pointer; }
+.next-action:hover { background: #f0f0ec; }
+.na-icon { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
+.na-text { font-size: 13px; color: #333; font-weight: 500; }
+.na-sub { font-size: 11px; color: #999; margin-top: 2px; }
+.win-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid #f0f0f0; }
+.win-item:last-child { border-bottom: none; }
+.win-check { width: 20px; height: 20px; border-radius: 50%; background: #EAF3DE; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.win-text { font-size: 13px; color: #333; }
+.win-date { font-size: 11px; color: #999; margin-top: 2px; }
+.blocks-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.block-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 10px; border: 0.5px solid #e8e8e8; background: #fafafa; }
+.block-name { font-size: 13px; color: #333; }
+.block-status { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+.status-done { background: #EAF3DE; color: #3B6D11; }
+.status-progress { background: #E6F1FB; color: #185FA5; }
+.status-active { background: #FAEEDA; color: #854F0B; }
 
-  /* Onboarding overlay */
-  #onboarding-page { display: none; position: fixed; inset: 0; background: #0d0d0d; z-index: 1500; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem; }
-  #onboarding-page.visible { display: flex; }
-  .onboarding-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; max-width: 520px; width: 100%; border: 0.5px solid rgba(255,255,255,0.08); }
-  .onboarding-step { display: none; }
-  .onboarding-step.active { display: block; }
-  .onboarding-title { color: #fff; font-size: 20px; font-weight: 500; margin-bottom: 8px; }
-  .onboarding-sub { color: #555; font-size: 13px; margin-bottom: 2rem; line-height: 1.6; }
-  .onboarding-highlight { background: rgba(239,159,39,0.1); border: 0.5px solid rgba(239,159,39,0.2); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
-  .onboarding-highlight p { color: #EF9F27; font-size: 13px; line-height: 1.6; }
-  .test-btn { display: block; width: 100%; background: #EF9F27; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; text-align: center; text-decoration: none; margin-bottom: 10px; }
-  .skip-btn { display: block; width: 100%; background: transparent; color: #555; border: 0.5px solid #333; padding: 11px; border-radius: 10px; font-size: 13px; cursor: pointer; text-align: center; }
-  .color-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
-  .color-input-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 6px; }
-  .color-input-group input { width: 100%; background: #111; border: 0.5px solid #333; border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 14px; outline: none; }
-  .color-input-group input:focus { border-color: #EF9F27; }
-  .label-giallo { color: #EF9F27; }
-  .label-blu { color: #378ADD; }
-  .label-verde { color: #97C459; }
-  .label-rosso { color: #E24B4A; }
-  .save-btn { width: 100%; background: #EF9F27; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; }
-  .onboarding-progress { display: flex; gap: 6px; margin-bottom: 2rem; }
-  .progress-dot { flex: 1; height: 3px; border-radius: 2px; background: #333; }
-  .progress-dot.active { background: #EF9F27; }
+/* PAGE HEADER */
+.page-header { margin-bottom: 1.5rem; }
+.page-title { font-size: 22px; font-weight: 500; color: #333; }
+.page-sub { font-size: 13px; color: #999; margin-top: 4px; }
 
-  /* Call overlay */
-  #call-page { display: none; position: fixed; inset: 0; background: #0d0d0d; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
-  #call-page.visible { display: flex; }
-  .call-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; text-align: center; max-width: 420px; width: 90%; border: 0.5px solid rgba(255,255,255,0.08); }
-  .call-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #EF9F27, #e07b10); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 1.25rem; }
-  .call-status { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 0.5rem; }
-  .call-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #639922; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .call-status-text { color: #639922; font-size: 13px; font-weight: 500; }
-  .call-title { color: #fff; font-size: 18px; font-weight: 500; margin-bottom: 8px; }
-  .call-desc { color: #555; font-size: 13px; margin-bottom: 2rem; line-height: 1.6; }
-  .call-btn-start { background: #EF9F27; color: #fff; border: none; padding: 15px 32px; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 10px; }
-  .call-btn-back { background: transparent; color: #555; border: 0.5px solid #333; padding: 11px 32px; border-radius: 12px; font-size: 13px; cursor: pointer; width: 100%; }
-  #tavus-container { display: none; position: absolute; inset: 0; }
-  #tavus-container.visible { display: block; }
-  #tavus-iframe { width: 100%; height: 100%; border: none; }
-  .end-call-btn { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #fff; border: 0.5px solid rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; z-index: 10; }
+/* CARDS GENERICI */
+.card { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; }
+.card-title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 1rem; }
+
+/* SESSIONI */
+.session-item { padding: 1rem; border: 0.5px solid #e8e8e8; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; }
+.session-item:hover { border-color: #EF9F27; background: #fffdf9; }
+.session-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.session-date { font-size: 13px; font-weight: 500; color: #333; }
+.session-tag { font-size: 11px; padding: 2px 10px; border-radius: 20px; background: #FAEEDA; color: #854F0B; }
+.session-preview { font-size: 13px; color: #999; line-height: 1.5; }
+.add-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 0.5px dashed #ccc; background: #fff; font-size: 13px; color: #999; cursor: pointer; width: 100%; transition: all 0.15s; margin-bottom: 1rem; }
+.add-btn:hover { border-color: #EF9F27; color: #EF9F27; }
+.input-field { width: 100%; border: 0.5px solid #e8e8e8; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #333; outline: none; font-family: inherit; margin-bottom: 10px; }
+.input-field:focus { border-color: #EF9F27; }
+.textarea-field { width: 100%; border: 0.5px solid #e8e8e8; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #333; outline: none; resize: none; min-height: 100px; font-family: inherit; margin-bottom: 10px; }
+.textarea-field:focus { border-color: #EF9F27; }
+.save-btn { background: #1a1a1a; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; cursor: pointer; }
+.cancel-btn { background: transparent; color: #999; border: 0.5px solid #e8e8e8; padding: 10px 20px; border-radius: 10px; font-size: 13px; cursor: pointer; margin-left: 8px; }
+
+/* PROGRESSI - SFERE */
+.sfere-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+.sfera-card { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.25rem; }
+.sfera-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.sfera-icon { font-size: 20px; }
+.sfera-name { font-size: 13px; font-weight: 500; color: #333; }
+.sfera-pct { font-size: 22px; font-weight: 500; color: #333; margin-bottom: 6px; }
+.sfera-bar-track { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.sfera-bar-fill { height: 100%; border-radius: 3px; }
+.sfera-actions { display: flex; gap: 6px; }
+.sfera-btn { flex: 1; padding: 6px; border-radius: 6px; border: 0.5px solid #e8e8e8; background: #fff; font-size: 11px; cursor: pointer; color: #666; transition: all 0.15s; }
+.sfera-btn:hover { background: #f5f5f0; }
+
+/* VITTORIE */
+.vittoria-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border: 0.5px solid #e8e8e8; border-radius: 12px; margin-bottom: 8px; }
+.vittoria-check { width: 24px; height: 24px; border-radius: 50%; background: #EAF3DE; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #3B6D11; font-size: 12px; }
+.vittoria-text { font-size: 13px; color: #333; font-weight: 500; }
+.vittoria-date { font-size: 11px; color: #999; margin-top: 2px; }
+.vittoria-cat { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0f0f0; color: #666; margin-top: 4px; display: inline-block; }
+
+/* TIMELINE */
+.timeline-item { display: flex; gap: 16px; margin-bottom: 20px; position: relative; }
+.timeline-item:not(:last-child)::before { content: ''; position: absolute; left: 19px; top: 38px; bottom: -20px; width: 2px; background: #e8e8e8; }
+.timeline-dot { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+.timeline-content { flex: 1; background: #fff; border: 0.5px solid #e8e8e8; border-radius: 12px; padding: 1rem; }
+.timeline-date { font-size: 11px; color: #999; margin-bottom: 4px; }
+.timeline-title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 4px; }
+.timeline-desc { font-size: 13px; color: #666; line-height: 1.5; }
+.timeline-tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-top: 6px; }
+
+/* COLORI PAGE */
+.colori-hero { background: #1a1a1a; border-radius: 16px; padding: 2rem; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
+.colori-hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: #EF9F27; opacity: 0.08; pointer-events: none; }
+.colori-name { color: #fff; font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+.colori-desc { color: #666; font-size: 13px; line-height: 1.6; }
+.colori-bars { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 12px; }
+.colori-bar-row { display: flex; align-items: center; gap: 12px; }
+.colori-bar-label { font-size: 13px; font-weight: 500; width: 50px; }
+.colori-bar-track { flex: 1; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
+.colori-bar-fill { height: 100%; border-radius: 5px; }
+.colori-bar-pct { font-size: 13px; color: #888; width: 40px; text-align: right; }
+.colori-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 1.25rem; }
+.colore-desc-card { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.25rem; }
+.colore-desc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.colore-desc-dot { width: 12px; height: 12px; border-radius: 50%; }
+.colore-desc-title { font-size: 14px; font-weight: 500; color: #333; }
+.colore-desc-text { font-size: 13px; color: #666; line-height: 1.6; }
+
+/* MODALS */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; }
+.modal-overlay.visible { display: flex; }
+.modal { background: #fff; border-radius: 20px; padding: 2rem; max-width: 480px; width: 90%; }
+.modal-title { font-size: 17px; font-weight: 500; color: #333; margin-bottom: 1.5rem; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1rem; }
+
+/* AUTH */
+#auth-page { display: flex; position: fixed; inset: 0; background: #0d0d0d; z-index: 2000; align-items: center; justify-content: center; }
+#auth-page.hidden { display: none; }
+.auth-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; max-width: 400px; width: 90%; border: 0.5px solid rgba(255,255,255,0.08); }
+.auth-logo { color: #fff; font-size: 22px; font-weight: 500; margin-bottom: 0.5rem; }
+.auth-logo span { color: #EF9F27; }
+.auth-sub { color: #555; font-size: 13px; margin-bottom: 2rem; }
+.auth-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.auth-tab { flex: 1; padding: 8px; border-radius: 8px; border: 0.5px solid #333; background: transparent; color: #555; font-size: 13px; cursor: pointer; }
+.auth-tab.active { background: rgba(239,159,39,0.15); color: #EF9F27; border-color: rgba(239,159,39,0.3); }
+.auth-input { width: 100%; background: #111; border: 0.5px solid #333; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 14px; margin-bottom: 10px; outline: none; }
+.auth-input:focus { border-color: #EF9F27; }
+.auth-btn { width: 100%; background: #EF9F27; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 6px; }
+.auth-error { color: #E24B4A; font-size: 12px; margin-top: 8px; display: none; }
+
+/* ONBOARDING */
+#onboarding-page { display: none; position: fixed; inset: 0; background: #0d0d0d; z-index: 1500; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem; }
+#onboarding-page.visible { display: flex; }
+.onboarding-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; max-width: 520px; width: 100%; border: 0.5px solid rgba(255,255,255,0.08); }
+.onboarding-step { display: none; }
+.onboarding-step.active { display: block; }
+.onboarding-title { color: #fff; font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+.onboarding-sub { color: #555; font-size: 13px; margin-bottom: 2rem; line-height: 1.6; }
+.onboarding-highlight { background: rgba(239,159,39,0.1); border: 0.5px solid rgba(239,159,39,0.2); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+.onboarding-highlight p { color: #EF9F27; font-size: 13px; line-height: 1.6; }
+.test-btn { display: block; width: 100%; background: #EF9F27; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; text-align: center; text-decoration: none; margin-bottom: 10px; }
+.skip-btn { display: block; width: 100%; background: transparent; color: #555; border: 0.5px solid #333; padding: 11px; border-radius: 10px; font-size: 13px; cursor: pointer; text-align: center; }
+.color-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+.color-input-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 6px; }
+.color-input-group input { width: 100%; background: #111; border: 0.5px solid #333; border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 14px; outline: none; }
+.color-input-group input:focus { border-color: #EF9F27; }
+.label-giallo { color: #EF9F27; }
+.label-blu { color: #378ADD; }
+.label-verde { color: #97C459; }
+.label-rosso { color: #E24B4A; }
+.onboarding-progress { display: flex; gap: 6px; margin-bottom: 2rem; }
+.progress-dot { flex: 1; height: 3px; border-radius: 2px; background: #333; }
+.progress-dot.active { background: #EF9F27; }
+
+/* CALL */
+#call-page { display: none; position: fixed; inset: 0; background: #0d0d0d; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+#call-page.visible { display: flex; }
+.call-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; text-align: center; max-width: 420px; width: 90%; border: 0.5px solid rgba(255,255,255,0.08); }
+.call-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #EF9F27, #e07b10); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 1.25rem; }
+.call-status { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 0.5rem; }
+.call-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #639922; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.call-status-text { color: #639922; font-size: 13px; font-weight: 500; }
+.call-title { color: #fff; font-size: 18px; font-weight: 500; margin-bottom: 8px; }
+.call-desc { color: #555; font-size: 13px; margin-bottom: 2rem; line-height: 1.6; }
+.call-btn-start { background: #EF9F27; color: #fff; border: none; padding: 15px 32px; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 10px; }
+.call-btn-back { background: transparent; color: #555; border: 0.5px solid #333; padding: 11px 32px; border-radius: 12px; font-size: 13px; cursor: pointer; width: 100%; }
+#tavus-container { display: none; position: absolute; inset: 0; }
+#tavus-container.visible { display: block; }
+#tavus-iframe { width: 100%; height: 100%; border: none; }
+.end-call-btn { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #fff; border: 0.5px solid rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; z-index: 10; }
 </style>
 </head>
 <body>
 
-<!-- Auth overlay -->
+<!-- AUTH -->
 <div id="auth-page">
   <div class="auth-card">
     <div class="auth-logo">Mind<span>Color</span></div>
@@ -160,173 +262,247 @@
   </div>
 </div>
 
-<!-- Onboarding overlay -->
+<!-- ONBOARDING -->
 <div id="onboarding-page">
   <div class="onboarding-card">
     <div class="onboarding-progress">
       <div class="progress-dot active" id="dot-1"></div>
       <div class="progress-dot" id="dot-2"></div>
     </div>
-
-    <!-- Step 1: Test -->
     <div class="onboarding-step active" id="step-1">
       <div class="onboarding-title">Scopri il tuo colore dominante</div>
-      <div class="onboarding-sub">Prima di iniziare il tuo percorso, fai il test dei 4 colori di Gianluca Liguori. Scoprirai il tuo profilo mentale e come comunicare al massimo del tuo potenziale.</div>
-      <div class="onboarding-highlight">
-        <p>🎯 Il test richiede circa 5 minuti. Al termine riceverai via email il tuo profilo completo con le percentuali dei 4 colori.</p>
-      </div>
+      <div class="onboarding-sub">Prima di iniziare il tuo percorso, fai il test dei 4 colori di Gianluca Liguori.</div>
+      <div class="onboarding-highlight"><p>🎯 Il test richiede circa 5 minuti. Riceverai via email il tuo profilo completo.</p></div>
       <a class="test-btn" href="https://gianlucamind.vercel.app/" target="_blank" onclick="goToStep2()">Fai il test dei 4 colori →</a>
       <button class="skip-btn" onclick="goToStep2()">Ho già fatto il test, vai avanti</button>
     </div>
-
-    <!-- Step 2: Inserisci risultati -->
     <div class="onboarding-step" id="step-2">
       <div class="onboarding-title">Inserisci i tuoi risultati</div>
-      <div class="onboarding-sub">Hai ricevuto il report via email? Inserisci qui le percentuali dei 4 colori che hai trovato nel tuo profilo.</div>
+      <div class="onboarding-sub">Inserisci le percentuali dei 4 colori dal tuo report.</div>
       <div class="color-inputs">
-        <div class="color-input-group">
-          <label class="label-giallo">🟡 Giallo %</label>
-          <input type="number" id="input-giallo" placeholder="es. 42" min="0" max="100">
-        </div>
-        <div class="color-input-group">
-          <label class="label-blu">🔵 Blu %</label>
-          <input type="number" id="input-blu" placeholder="es. 28" min="0" max="100">
-        </div>
-        <div class="color-input-group">
-          <label class="label-verde">🟢 Verde %</label>
-          <input type="number" id="input-verde" placeholder="es. 18" min="0" max="100">
-        </div>
-        <div class="color-input-group">
-          <label class="label-rosso">🔴 Rosso %</label>
-          <input type="number" id="input-rosso" placeholder="es. 12" min="0" max="100">
-        </div>
+        <div class="color-input-group"><label class="label-giallo">🟡 Giallo %</label><input type="number" id="input-giallo" placeholder="es. 42" min="0" max="100"></div>
+        <div class="color-input-group"><label class="label-blu">🔵 Blu %</label><input type="number" id="input-blu" placeholder="es. 28" min="0" max="100"></div>
+        <div class="color-input-group"><label class="label-verde">🟢 Verde %</label><input type="number" id="input-verde" placeholder="es. 18" min="0" max="100"></div>
+        <div class="color-input-group"><label class="label-rosso">🔴 Rosso %</label><input type="number" id="input-rosso" placeholder="es. 12" min="0" max="100"></div>
       </div>
-      <button class="save-btn" onclick="saveColors()">Salva il mio profilo →</button>
-      <div class="auth-error" id="onboarding-error" style="margin-top:10px"></div>
+      <button class="test-btn" onclick="saveColors()">Salva il mio profilo →</button>
+      <div class="auth-error" id="onboarding-error"></div>
     </div>
   </div>
 </div>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sidebar-logo">Mind<span>Color</span></div>
-  <a class="nav-item active" href="#" onclick="showPage('home')">
-    <span class="nav-icon">⊞</span> Home
-  </a>
-  <a class="nav-item" href="#" onclick="showPage('colori')">
-    <span class="nav-icon">◎</span> I miei colori
-  </a>
-  <a class="nav-item" href="#">
-    <span class="nav-icon">◈</span> Sessioni
-  </a>
-  <a class="nav-item" href="#">
-    <span class="nav-icon">↗</span> Progressi
-  </a>
-  <a class="nav-item" href="#">
-    <span class="nav-icon">✦</span> Vittorie
-  </a>
-  <a class="nav-item" href="#">
-    <span class="nav-icon">◷</span> Timeline
-  </a>
-  <a class="nav-item call-btn" href="#" onclick="showCall(); return false;">
-    <span class="nav-icon">🎙</span> Parla con Gianluca
-  </a>
+  <button class="nav-item active" id="nav-home" onclick="showPage('home')"><span class="nav-icon">⊞</span> Home</button>
+  <button class="nav-item" id="nav-colori" onclick="showPage('colori')"><span class="nav-icon">◎</span> I miei colori</button>
+  <button class="nav-item" id="nav-sessioni" onclick="showPage('sessioni')"><span class="nav-icon">◈</span> Sessioni</button>
+  <button class="nav-item" id="nav-progressi" onclick="showPage('progressi')"><span class="nav-icon">↗</span> Progressi</button>
+  <button class="nav-item" id="nav-vittorie" onclick="showPage('vittorie')"><span class="nav-icon">✦</span> Vittorie</button>
+  <button class="nav-item" id="nav-timeline" onclick="showPage('timeline')"><span class="nav-icon">◷</span> Timeline</button>
+  <button class="nav-item call-btn" onclick="showCall()"><span class="nav-icon">🎙</span> Parla con Gianluca</button>
   <div class="sidebar-footer">
     <div class="user-info">
       <div class="user-avatar" id="user-avatar">?</div>
-      <div>
-        <div class="user-name" id="user-name">Caricamento...</div>
-        <div class="user-email" id="user-email"></div>
-      </div>
+      <div><div class="user-name" id="user-name">...</div><div class="user-email" id="user-email"></div></div>
     </div>
   </div>
 </div>
 
+<!-- MAIN -->
 <div class="main">
-  <div class="hero">
-    <div class="hero-top">
-      <div>
-        <div class="hero-greeting">Bentornato nel tuo percorso</div>
-        <div class="hero-name" id="hero-name">Caricamento...</div>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-top">
+        <div><div class="hero-greeting">Bentornato nel tuo percorso</div><div class="hero-name" id="hero-name">...</div></div>
+        <div class="hero-badge" id="hero-badge">⬜ —</div>
       </div>
-      <div class="hero-badge" id="hero-badge">⬜ —</div>
+      <div class="hero-divider"></div>
+      <div class="hero-stats">
+        <div><div class="hero-stat-value" id="stat-sessioni">0</div><div class="hero-stat-label">Sessioni completate</div><div class="hero-stat-delta" id="stat-sessioni-delta"></div></div>
+        <div><div class="hero-stat-value" id="stat-ansia">—</div><div class="hero-stat-label">Livello ansia attuale</div><div class="hero-stat-delta"></div></div>
+        <div><div class="hero-stat-value" id="stat-vittorie">0</div><div class="hero-stat-label">Vittorie registrate</div><div class="hero-stat-delta"></div></div>
+      </div>
     </div>
-    <div class="hero-divider"></div>
-    <div class="hero-stats">
-      <div>
-        <div class="hero-stat-value" id="stat-sessioni">0</div>
-        <div class="hero-stat-label">Sessioni completate</div>
-        <div class="hero-stat-delta" id="stat-sessioni-delta"></div>
+
+    <!-- CHECK-IN -->
+    <div class="checkin-card" id="checkin-card">
+      <div class="checkin-header">
+        <div><div class="checkin-title" id="checkin-question">Come stai oggi?</div><div class="checkin-subtitle">Check-in quotidiano</div></div>
+        <div class="checkin-modes">
+          <button class="checkin-mode-btn active" onclick="setCheckinMode('scrivi')">✍️ Scrivi</button>
+          <button class="checkin-mode-btn" onclick="setCheckinMode('voce')">🎙 Voce</button>
+        </div>
       </div>
-      <div>
-        <div class="hero-stat-value" id="stat-ansia">—</div>
-        <div class="hero-stat-label">Livello ansia attuale</div>
-        <div class="hero-stat-delta" id="stat-ansia-delta"></div>
+      <div class="checkin-emotions">
+        <button class="emotion-btn" onclick="toggleEmotion(this, 'Motivato')">🔥 Motivato</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this, 'Ansioso')">😰 Ansioso</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this, 'Sereno')">😌 Sereno</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this, 'Stanco')">😴 Stanco</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this, 'Confuso')">🌀 Confuso</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this, 'Focalizzato')">🎯 Focalizzato</button>
       </div>
-      <div>
-        <div class="hero-stat-value" id="stat-decisioni">0</div>
-        <div class="hero-stat-label">Decisioni autonome</div>
-        <div class="hero-stat-delta" id="stat-decisioni-delta"></div>
+      <textarea class="checkin-input" id="checkin-input" placeholder="Cosa porti con te oggi? Cosa vuoi raggiungere? Come ti senti davvero..."></textarea>
+      <button class="checkin-submit" onclick="saveCheckin()">Salva il check-in →</button>
+      <div class="checkin-done" id="checkin-done">✓ Check-in salvato. Buona giornata.</div>
+    </div>
+
+    <div class="color-strip">
+      <div class="color-card"><div class="color-card-top"><span class="color-card-name">Giallo</span><div class="color-dot" style="background:#EF9F27"></div></div><div class="color-card-pct" style="color:#EF9F27" id="pct-giallo">—</div><div class="color-card-bar"><div class="color-card-fill" id="bar-giallo" style="width:0%;background:#EF9F27"></div></div><div class="color-card-label" id="label-giallo">—</div></div>
+      <div class="color-card"><div class="color-card-top"><span class="color-card-name">Blu</span><div class="color-dot" style="background:#378ADD"></div></div><div class="color-card-pct" style="color:#378ADD" id="pct-blu">—</div><div class="color-card-bar"><div class="color-card-fill" id="bar-blu" style="width:0%;background:#378ADD"></div></div><div class="color-card-label" id="label-blu">—</div></div>
+      <div class="color-card"><div class="color-card-top"><span class="color-card-name">Verde</span><div class="color-dot" style="background:#97C459"></div></div><div class="color-card-pct" style="color:#639922" id="pct-verde">—</div><div class="color-card-bar"><div class="color-card-fill" id="bar-verde" style="width:0%;background:#97C459"></div></div><div class="color-card-label" id="label-verde">—</div></div>
+      <div class="color-card"><div class="color-card-top"><span class="color-card-name">Rosso</span><div class="color-dot" style="background:#E24B4A"></div></div><div class="color-card-pct" style="color:#E24B4A" id="pct-rosso">—</div><div class="color-card-bar"><div class="color-card-fill" id="bar-rosso" style="width:0%;background:#E24B4A"></div></div><div class="color-card-label" id="label-rosso">—</div></div>
+    </div>
+
+    <div class="journey">
+      <div class="section-title">Il tuo percorso</div>
+      <div class="journey-track">
+        <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Inizio</div></div>
+        <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Profilo colori</div></div>
+        <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Blocchi identificati</div></div>
+        <div class="journey-step"><div class="step-dot step-active">4</div><div class="step-label">Lavoro sui pattern</div></div>
+        <div class="journey-step"><div class="step-dot step-future">5</div><div class="step-label">Autonomia</div></div>
+        <div class="journey-step"><div class="step-dot step-future">6</div><div class="step-label">Mastery</div></div>
+      </div>
+    </div>
+
+    <div class="bottom-grid">
+      <div class="b-card">
+        <div class="section-title">Prossime azioni</div>
+        <div class="next-action" onclick="showCall()"><div class="na-icon">▶</div><div><div class="na-text">Sessione con il coach</div><div class="na-sub">Disponibile ora</div></div></div>
+        <div class="next-action" onclick="showPage('progressi')"><div class="na-icon">📊</div><div><div class="na-text">Aggiorna i tuoi progressi</div><div class="na-sub">Segna cosa hai fatto oggi</div></div></div>
+        <div style="margin-top:1.25rem">
+          <div class="section-title">Blocchi identificati</div>
+          <div id="blocchi-list" class="blocks-grid"><div style="font-size:13px;color:#999">Nessun blocco ancora</div></div>
+        </div>
+      </div>
+      <div class="b-card">
+        <div class="section-title">Ultime vittorie</div>
+        <div id="vittorie-home"></div>
       </div>
     </div>
   </div>
 
-  <div class="color-strip">
-    <div class="color-card">
-      <div class="color-card-top"><span class="color-card-name">Giallo</span><div class="color-dot" style="background:#EF9F27"></div></div>
-      <div class="color-card-pct" style="color:#EF9F27" id="pct-giallo">—</div>
-      <div class="color-card-bar"><div class="color-card-fill" id="bar-giallo" style="width:0%;background:#EF9F27"></div></div>
-      <div class="color-card-label" id="label-giallo">—</div>
-    </div>
-    <div class="color-card">
-      <div class="color-card-top"><span class="color-card-name">Blu</span><div class="color-dot" style="background:#378ADD"></div></div>
-      <div class="color-card-pct" style="color:#378ADD" id="pct-blu">—</div>
-      <div class="color-card-bar"><div class="color-card-fill" id="bar-blu" style="width:0%;background:#378ADD"></div></div>
-      <div class="color-card-label" id="label-blu">—</div>
-    </div>
-    <div class="color-card">
-      <div class="color-card-top"><span class="color-card-name">Verde</span><div class="color-dot" style="background:#97C459"></div></div>
-      <div class="color-card-pct" style="color:#639922" id="pct-verde">—</div>
-      <div class="color-card-bar"><div class="color-card-fill" id="bar-verde" style="width:0%;background:#97C459"></div></div>
-      <div class="color-card-label" id="label-verde">—</div>
-    </div>
-    <div class="color-card">
-      <div class="color-card-top"><span class="color-card-name">Rosso</span><div class="color-dot" style="background:#E24B4A"></div></div>
-      <div class="color-card-pct" style="color:#E24B4A" id="pct-rosso">—</div>
-      <div class="color-card-bar"><div class="color-card-fill" id="bar-rosso" style="width:0%;background:#E24B4A"></div></div>
-      <div class="color-card-label" id="label-rosso">—</div>
-    </div>
-  </div>
-
-  <div class="journey">
-    <div class="section-title">Il tuo percorso</div>
-    <div class="journey-track">
-      <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Inizio</div></div>
-      <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Profilo colori</div></div>
-      <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Blocchi identificati</div></div>
-      <div class="journey-step"><div class="step-dot step-active">4</div><div class="step-label">Lavoro sui pattern</div></div>
-      <div class="journey-step"><div class="step-dot step-future">5</div><div class="step-label">Autonomia</div></div>
-      <div class="journey-step"><div class="step-dot step-future">6</div><div class="step-label">Mastery</div></div>
-    </div>
-  </div>
-
-  <div class="bottom-grid">
-    <div class="b-card">
-      <div class="section-title">Prossime azioni</div>
-      <div class="next-action" onclick="showCall()"><div class="na-icon">▶</div><div><div class="na-text">Sessione con il coach</div><div class="na-sub">Disponibile ora — clicca per iniziare</div></div></div>
-      <div class="next-action"><div class="na-icon">📄</div><div><div class="na-text">Esercizio quotidiano</div><div class="na-sub">Tecnica delle 3 domande</div></div></div>
-      <div style="margin-top:1.25rem">
-        <div class="section-title">Blocchi identificati</div>
-        <div id="blocchi-list" class="blocks-grid"><div style="font-size:13px;color:#999">Nessun blocco registrato</div></div>
+  <!-- I MIEI COLORI -->
+  <div class="page" id="page-colori">
+    <div class="page-header"><div class="page-title">I miei colori</div><div class="page-sub">Il tuo profilo neuropsicologico basato sul metodo Tailor Selling</div></div>
+    <div class="colori-hero">
+      <div class="colori-name" id="colori-profilo-nome">Il tuo profilo</div>
+      <div class="colori-desc" id="colori-profilo-desc">Il tuo colore dominante definisce come comunichi, decidi e reagisci sotto pressione.</div>
+      <div class="colori-bars">
+        <div class="colori-bar-row"><span class="colori-bar-label" style="color:#EF9F27">Giallo</span><div class="colori-bar-track"><div class="colori-bar-fill" id="cbar-giallo" style="width:0%;background:#EF9F27"></div></div><span class="colori-bar-pct" id="cpct-giallo">0%</span></div>
+        <div class="colori-bar-row"><span class="colori-bar-label" style="color:#378ADD">Blu</span><div class="colori-bar-track"><div class="colori-bar-fill" id="cbar-blu" style="width:0%;background:#378ADD"></div></div><span class="colori-bar-pct" id="cpct-blu">0%</span></div>
+        <div class="colori-bar-row"><span class="colori-bar-label" style="color:#97C459">Verde</span><div class="colori-bar-track"><div class="colori-bar-fill" id="cbar-verde" style="width:0%;background:#97C459"></div></div><span class="colori-bar-pct" id="cpct-verde">0%</span></div>
+        <div class="colori-bar-row"><span class="colori-bar-label" style="color:#E24B4A">Rosso</span><div class="colori-bar-track"><div class="colori-bar-fill" id="cbar-rosso" style="width:0%;background:#E24B4A"></div></div><span class="colori-bar-pct" id="cpct-rosso">0%</span></div>
       </div>
     </div>
-    <div class="b-card">
-      <div class="section-title">Ultime vittorie</div>
-      <div id="vittorie-list"><div style="font-size:13px;color:#999">Nessuna vittoria registrata ancora</div></div>
+    <div class="colori-cards">
+      <div class="colore-desc-card"><div class="colore-desc-header"><div class="colore-desc-dot" style="background:#EF9F27"></div><div class="colore-desc-title">Giallo — L'Influente</div></div><div class="colore-desc-text">Entusiasta, creativo, sociale. Decide d'impulso, vuole riconoscimento. Comunica con energia e visione. Il suo rischio è la dispersione.</div></div>
+      <div class="colore-desc-card"><div class="colore-desc-header"><div class="colore-desc-dot" style="background:#378ADD"></div><div class="colore-desc-title">Blu — L'Analitico</div></div><div class="colore-desc-text">Preciso, razionale, orientato ai dati. Decide lentamente, vuole certezze. Comunica con logica e dettagli. Il suo rischio è la paralisi da analisi.</div></div>
+      <div class="colore-desc-card"><div class="colore-desc-header"><div class="colore-desc-dot" style="background:#97C459"></div><div class="colore-desc-title">Verde — Il Nobile</div></div><div class="colore-desc-text">Empatico, stabile, collaborativo. Decide con cautela, vuole armonia. Comunica con calore e ascolto. Il suo rischio è evitare i conflitti necessari.</div></div>
+      <div class="colore-desc-card"><div class="colore-desc-header"><div class="colore-desc-dot" style="background:#E24B4A"></div><div class="colore-desc-title">Rosso — Il Dominante</div></div><div class="colore-desc-text">Diretto, competitivo, orientato ai risultati. Decide velocemente, vuole controllo. Comunica con assertività. Il suo rischio è l'impazienza.</div></div>
     </div>
+  </div>
+
+  <!-- SESSIONI -->
+  <div class="page" id="page-sessioni">
+    <div class="page-header"><div class="page-title">Sessioni</div><div class="page-sub">Le tue conversazioni con Gianluca e i tuoi appunti</div></div>
+    <button class="add-btn" onclick="showModal('modal-sessione')">+ Aggiungi appunti sessione</button>
+    <div id="sessioni-list"></div>
+  </div>
+
+  <!-- PROGRESSI -->
+  <div class="page" id="page-progressi">
+    <div class="page-header"><div class="page-title">Progressi</div><div class="page-sub">Monitora la tua evoluzione in ogni sfera della vita</div></div>
+    <button class="add-btn" onclick="showModal('modal-progresso')">+ Aggiungi un progresso</button>
+    <div class="sfere-grid">
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💼</span><span class="sfera-name">Business</span></div><div class="sfera-pct" id="sfera-business">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-business" style="width:0%;background:#EF9F27"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('business', -10)">−</button><button class="sfera-btn" onclick="updateSfera('business', 10)">+</button></div></div>
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">❤️</span><span class="sfera-name">Relazioni</span></div><div class="sfera-pct" id="sfera-relazioni">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-relazioni" style="width:0%;background:#E24B4A"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('relazioni', -10)">−</button><button class="sfera-btn" onclick="updateSfera('relazioni', 10)">+</button></div></div>
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">🧠</span><span class="sfera-name">Mente</span></div><div class="sfera-pct" id="sfera-mente">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-mente" style="width:0%;background:#378ADD"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('mente', -10)">−</button><button class="sfera-btn" onclick="updateSfera('mente', 10)">+</button></div></div>
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💪</span><span class="sfera-name">Salute</span></div><div class="sfera-pct" id="sfera-salute">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-salute" style="width:0%;background:#97C459"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('salute', -10)">−</button><button class="sfera-btn" onclick="updateSfera('salute', 10)">+</button></div></div>
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💰</span><span class="sfera-name">Finanze</span></div><div class="sfera-pct" id="sfera-finanze">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-finanze" style="width:0%;background:#EF9F27"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('finanze', -10)">−</button><button class="sfera-btn" onclick="updateSfera('finanze', 10)">+</button></div></div>
+      <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">✨</span><span class="sfera-name">Spiritualità</span></div><div class="sfera-pct" id="sfera-spiritualita">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-spiritualita" style="width:0%;background:#7F77DD"></div></div><div class="sfera-actions"><button class="sfera-btn" onclick="updateSfera('spiritualita', -10)">−</button><button class="sfera-btn" onclick="updateSfera('spiritualita', 10)">+</button></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Attività recenti</div>
+      <div id="progressi-list"><div style="font-size:13px;color:#999">Nessuna attività ancora — aggiungi il tuo primo progresso</div></div>
+    </div>
+  </div>
+
+  <!-- VITTORIE -->
+  <div class="page" id="page-vittorie">
+    <div class="page-header"><div class="page-title">Vittorie</div><div class="page-sub">Ogni traguardo conta — piccolo o grande</div></div>
+    <button class="add-btn" onclick="showModal('modal-vittoria')">+ Aggiungi una vittoria</button>
+    <div id="vittorie-list-full"></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="page" id="page-timeline">
+    <div class="page-header"><div class="page-title">Timeline</div><div class="page-sub">Il tuo viaggio dall'inizio ad oggi</div></div>
+    <div id="timeline-list">
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:#EAF3DE">🚀</div>
+        <div class="timeline-content">
+          <div class="timeline-date">Inizio percorso</div>
+          <div class="timeline-title">Hai iniziato il tuo percorso su MindColor</div>
+          <div class="timeline-desc">Hai fatto il test dei 4 colori e scoperto il tuo profilo. Da qui inizia tutto.</div>
+          <span class="timeline-tag" style="background:#EAF3DE;color:#3B6D11">Punto di partenza</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-sessione">
+  <div class="modal">
+    <div class="modal-title">Aggiungi appunti sessione</div>
+    <input class="input-field" id="sess-data" type="date">
+    <input class="input-field" id="sess-blocco" placeholder="Blocco o tema affrontato">
+    <textarea class="textarea-field" id="sess-note" placeholder="I tuoi appunti, riflessioni, insight dalla sessione..."></textarea>
+    <input class="input-field" id="sess-impegno" placeholder="Impegno preso per le prossime 24h">
+    <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-sessione')">Annulla</button><button class="save-btn" onclick="saveSessione()">Salva</button></div>
   </div>
 </div>
 
-<!-- Call overlay -->
+<div class="modal-overlay" id="modal-progresso">
+  <div class="modal">
+    <div class="modal-title">Aggiungi un progresso</div>
+    <select class="input-field" id="prog-sfera">
+      <option value="business">💼 Business</option>
+      <option value="relazioni">❤️ Relazioni</option>
+      <option value="mente">🧠 Mente</option>
+      <option value="salute">💪 Salute</option>
+      <option value="finanze">💰 Finanze</option>
+      <option value="spiritualita">✨ Spiritualità</option>
+    </select>
+    <input class="input-field" id="prog-titolo" placeholder="Cosa hai fatto o raggiunto?">
+    <textarea class="textarea-field" id="prog-note" placeholder="Dettagli, come ti sei sentito, cosa è cambiato..."></textarea>
+    <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-progresso')">Annulla</button><button class="save-btn" onclick="saveProgresso()">Salva</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-vittoria">
+  <div class="modal">
+    <div class="modal-title">Aggiungi una vittoria</div>
+    <input class="input-field" id="vitt-desc" placeholder="Descrivi la tua vittoria">
+    <select class="input-field" id="vitt-cat">
+      <option value="Business">💼 Business</option>
+      <option value="Relazioni">❤️ Relazioni</option>
+      <option value="Mente">🧠 Mente</option>
+      <option value="Salute">💪 Salute</option>
+      <option value="Decisione autonoma">🎯 Decisione autonoma</option>
+      <option value="Blocco superato">✅ Blocco superato</option>
+      <option value="Altro">⭐ Altro</option>
+    </select>
+    <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-vittoria')">Annulla</button><button class="save-btn" onclick="saveVittoria()">Salva</button></div>
+  </div>
+</div>
+
+<!-- CALL -->
 <div id="call-page">
   <div class="call-card">
     <div class="call-avatar">🎙</div>
@@ -343,70 +519,24 @@
 </div>
 
 <script>
-  const SUPABASE_URL = 'https://aphxfhuczkasrqvznjps.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwaHhmaHVjemthc3JxdnpuanBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTQwMzAsImV4cCI6MjA5NjU3MDAzMH0.-daz-VWrP0FCDeL6v0stsdfSOUEaVvuoc5l2gfkFnbc';
-  const TAVUS_API_KEY = 'f5802a9d02fc4c7a9eb65bacf8d98d55';
-  const TAVUS_PERSONA_ID = 'p327cfdeb718';
+const SUPABASE_URL = 'https://aphxfhuczkasrqvznjps.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwaHhmaHVjemthc3JxdnpuanBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTQwMzAsImV4cCI6MjA5NjU3MDAzMH0.-daz-VWrP0FCDeL6v0stsdfSOUEaVvuoc5l2gfkFnbc';
+const TAVUS_API_KEY = 'f5802a9d02fc4c7a9eb65bacf8d98d55';
+const TAVUS_PERSONA_ID = 'p327cfdeb718';
 
-  const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-  let currentUser = null;
-  let authMode = 'login';
-  let userName = '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+let authMode = 'login';
+let userName = '';
+let selectedEmotions = [];
+let sfere = { business:0, relazioni:0, mente:0, salute:0, finanze:0, spiritualita:0 };
 
-  async function checkSession() {
-    const { data: { session } } = await db.auth.getSession();
-    if (session) {
-      currentUser = session.user;
-      document.getElementById('auth-page').classList.add('hidden');
-      const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
-      if (!profile || !profile.colore_dominante) {
-        document.getElementById('onboarding-page').classList.add('visible');
-      } else {
-        loadDashboard();
-      }
-    }
-  }
-
-  function switchTab(mode) {
-    authMode = mode;
-    document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (mode==='login'&&i===0)||(mode==='signup'&&i===1)));
-    document.getElementById('auth-name').style.display = mode === 'signup' ? 'block' : 'none';
-    document.querySelector('.auth-btn').textContent = mode === 'login' ? 'Accedi' : 'Registrati';
-  }
-
-  async function handleAuth() {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-    const name = document.getElementById('auth-name').value;
-    const errEl = document.getElementById('auth-error');
-    errEl.style.display = 'none';
-
-    if (authMode === 'login') {
-      const { data, error } = await db.auth.signInWithPassword({ email, password });
-      if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
-      currentUser = data.user;
-    } else {
-      const { data, error } = await db.auth.signUp({ email, password });
-      if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
-      // Sign in immediately after signup
-      const { data: loginData, error: loginError } = await db.auth.signInWithPassword({ email, password });
-      if (loginError) { errEl.textContent = loginError.message; errEl.style.display = 'block'; return; }
-      currentUser = loginData.user;
-      userName = name || email.split('@')[0];
-      // Create profile
-      const { error: insertError } = await db.from('profiles').insert({ 
-        id: currentUser.id, 
-        nome: userName, 
-        email: email, 
-        colore_dominante: '', 
-        pct_giallo: 0, 
-        pct_blu: 0, 
-        pct_verde: 0, 
-        pct_rosso: 0 
-      });
-      if (insertError) console.error('Profile insert error:', insertError);
-    }
+// AUTH
+async function checkSession() {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    currentUser = session.user;
     document.getElementById('auth-page').classList.add('hidden');
     const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
     if (!profile || !profile.colore_dominante) {
@@ -415,132 +545,242 @@
       loadDashboard();
     }
   }
+}
 
-  function goToStep2() {
-    document.getElementById('step-1').classList.remove('active');
-    document.getElementById('step-2').classList.add('active');
-    document.getElementById('dot-1').classList.remove('active');
-    document.getElementById('dot-2').classList.add('active');
+function switchTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (mode==='login'&&i===0)||(mode==='signup'&&i===1)));
+  document.getElementById('auth-name').style.display = mode === 'signup' ? 'block' : 'none';
+  document.querySelector('.auth-btn').textContent = mode === 'login' ? 'Accedi' : 'Registrati';
+}
+
+async function handleAuth() {
+  const email = document.getElementById('auth-email').value;
+  const password = document.getElementById('auth-password').value;
+  const name = document.getElementById('auth-name').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+  if (authMode === 'login') {
+    const { data, error } = await db.auth.signInWithPassword({ email, password });
+    if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+    currentUser = data.user;
+  } else {
+    const { data, error } = await db.auth.signUp({ email, password });
+    if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+    const { data: loginData, error: loginError } = await db.auth.signInWithPassword({ email, password });
+    if (loginError) { errEl.textContent = loginError.message; errEl.style.display = 'block'; return; }
+    currentUser = loginData.user;
+    userName = name || email.split('@')[0];
+    await db.from('profiles').insert({ id: currentUser.id, nome: userName, email, colore_dominante: '', pct_giallo: 0, pct_blu: 0, pct_verde: 0, pct_rosso: 0 });
   }
-
-  async function saveColors() {
-    const g = parseInt(document.getElementById('input-giallo').value) || 0;
-    const b = parseInt(document.getElementById('input-blu').value) || 0;
-    const v = parseInt(document.getElementById('input-verde').value) || 0;
-    const r = parseInt(document.getElementById('input-rosso').value) || 0;
-    const errEl = document.getElementById('onboarding-error');
-
-    if (g + b + v + r === 0) { errEl.textContent = 'Inserisci almeno un valore'; errEl.style.display = 'block'; return; }
-
-    const colori = [{ nome: 'Giallo', val: g }, { nome: 'Blu', val: b }, { nome: 'Verde', val: v }, { nome: 'Rosso', val: r }];
-    const dominante = colori.reduce((a, c) => c.val > a.val ? c : a).nome;
-
-    const { error: upsertError } = await db.from('profiles').upsert({
-      id: currentUser.id,
-      email: currentUser.email,
-      nome: userName || currentUser.email.split('@')[0],
-      pct_giallo: g, pct_blu: b, pct_verde: v, pct_rosso: r,
-      colore_dominante: dominante
-    }, { onConflict: 'id' });
-
-    if (upsertError) {
-      console.error('Upsert error:', upsertError);
-      errEl.textContent = 'Errore nel salvataggio: ' + upsertError.message;
-      errEl.style.display = 'block';
-      return;
-    }
-
-    document.getElementById('onboarding-page').classList.remove('visible');
+  document.getElementById('auth-page').classList.add('hidden');
+  const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (!profile || !profile.colore_dominante) {
+    document.getElementById('onboarding-page').classList.add('visible');
+  } else {
     loadDashboard();
   }
+}
 
-  async function loadDashboard() {
-    if (!currentUser) return;
-    const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
-    if (profile) {
-      const nome = profile.nome || currentUser.email;
-      const iniziali = nome.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-      document.getElementById('hero-name').textContent = nome;
-      document.getElementById('user-name').textContent = nome;
-      document.getElementById('user-email').textContent = currentUser.email;
-      document.getElementById('user-avatar').textContent = iniziali;
-      const coloreEmoji = { Giallo: '🟡', Blu: '🔵', Verde: '🟢', Rosso: '🔴' };
-      document.getElementById('hero-badge').textContent = (coloreEmoji[profile.colore_dominante] || '⬜') + ' ' + (profile.colore_dominante || '—');
-      ['giallo','blu','verde','rosso'].forEach(c => {
-        const val = profile['pct_' + c] || 0;
-        document.getElementById('pct-' + c).textContent = val + '%';
-        document.getElementById('bar-' + c).style.width = val + '%';
-        const label = c.charAt(0).toUpperCase() + c.slice(1) === profile.colore_dominante ? 'Dominante' : val > 15 ? 'In sviluppo' : 'Obiettivo di crescita';
-        document.getElementById('label-' + c).textContent = label;
-      });
-    }
+function goToStep2() {
+  document.getElementById('step-1').classList.remove('active');
+  document.getElementById('step-2').classList.add('active');
+  document.getElementById('dot-1').classList.remove('active');
+  document.getElementById('dot-2').classList.add('active');
+}
 
-    const { data: sessioni } = await db.from('sessioni').select('*').eq('user_id', currentUser.id).order('data_sessione', { ascending: false });
-    if (sessioni) {
-      document.getElementById('stat-sessioni').textContent = sessioni.length;
-      if (sessioni.length > 0 && sessioni[0].livello_ansia) document.getElementById('stat-ansia').textContent = sessioni[0].livello_ansia + '%';
-      const totDecisioni = sessioni.reduce((acc, s) => acc + (parseInt(s.decisioni_autonome) || 0), 0);
-      document.getElementById('stat-decisioni').textContent = totDecisioni;
-    }
+async function saveColors() {
+  const g = parseInt(document.getElementById('input-giallo').value) || 0;
+  const b = parseInt(document.getElementById('input-blu').value) || 0;
+  const v = parseInt(document.getElementById('input-verde').value) || 0;
+  const r = parseInt(document.getElementById('input-rosso').value) || 0;
+  const errEl = document.getElementById('onboarding-error');
+  if (g + b + v + r === 0) { errEl.textContent = 'Inserisci almeno un valore'; errEl.style.display = 'block'; return; }
+  const colori = [{ nome: 'Giallo', val: g }, { nome: 'Blu', val: b }, { nome: 'Verde', val: v }, { nome: 'Rosso', val: r }];
+  const dominante = colori.reduce((a, c) => c.val > a.val ? c : a).nome;
+  const { error } = await db.from('profiles').upsert({ id: currentUser.id, email: currentUser.email, nome: userName || currentUser.email.split('@')[0], pct_giallo: g, pct_blu: b, pct_verde: v, pct_rosso: r, colore_dominante: dominante }, { onConflict: 'id' });
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+  document.getElementById('onboarding-page').classList.remove('visible');
+  loadDashboard();
+}
 
-    const { data: blocchi } = await db.from('blocchi').select('*').eq('user_id', currentUser.id);
-    const blocchiEl = document.getElementById('blocchi-list');
-    if (blocchi && blocchi.length > 0) {
-      const sc = { superato: 'status-done', 'in corso': 'status-progress', attivo: 'status-active' };
-      blocchiEl.innerHTML = blocchi.map(b => `<div class="block-row"><span class="block-name">${b.nome_blocco}</span><span class="block-status ${sc[b.stato?.toLowerCase()]||'status-active'}">${b.stato||'Attivo'}</span></div>`).join('');
-    } else {
-      blocchiEl.innerHTML = '<div style="font-size:13px;color:#999">Nessun blocco registrato</div>';
-    }
-
-    const { data: vittorie } = await db.from('vittorie').select('*').eq('user_id', currentUser.id).order('data_vittoria', { ascending: false }).limit(4);
-    const vittorieEl = document.getElementById('vittorie-list');
-    if (vittorie && vittorie.length > 0) {
-      vittorieEl.innerHTML = vittorie.map(v => `<div class="win-item"><div class="win-check"><span class="win-check-icon">✓</span></div><div><div class="win-text">${v.descrizione}</div><div class="win-date">${v.data_vittoria||''}</div></div></div>`).join('');
-    } else {
-      vittorieEl.innerHTML = '<div style="font-size:13px;color:#999">Nessuna vittoria registrata ancora</div>';
+// DASHBOARD
+async function loadDashboard() {
+  if (!currentUser) return;
+  const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (profile) {
+    const nome = profile.nome || currentUser.email;
+    userName = nome;
+    const iniziali = nome.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('hero-name').textContent = nome;
+    document.getElementById('user-name').textContent = nome;
+    document.getElementById('user-email').textContent = currentUser.email;
+    document.getElementById('user-avatar').textContent = iniziali;
+    const coloreEmoji = { Giallo: '🟡', Blu: '🔵', Verde: '🟢', Rosso: '🔴' };
+    document.getElementById('hero-badge').textContent = (coloreEmoji[profile.colore_dominante] || '⬜') + ' ' + (profile.colore_dominante || '—');
+    ['giallo','blu','verde','rosso'].forEach(c => {
+      const val = profile['pct_' + c] || 0;
+      document.getElementById('pct-' + c).textContent = val + '%';
+      document.getElementById('bar-' + c).style.width = val + '%';
+      const cap = c.charAt(0).toUpperCase() + c.slice(1);
+      document.getElementById('label-' + c).textContent = cap === profile.colore_dominante ? 'Dominante' : val > 15 ? 'In sviluppo' : 'Obiettivo di crescita';
+      document.getElementById('cbar-' + c).style.width = val + '%';
+      document.getElementById('cpct-' + c).textContent = val + '%';
+    });
+    document.getElementById('colori-profilo-nome').textContent = 'Il tuo colore dominante è il ' + (profile.colore_dominante || '—');
+    const checkinQ = { Giallo: 'Ciao! Cosa ti entusiasma di più oggi?', Blu: 'Come stai ragionando oggi? Su cosa vuoi fare chiarezza?', Verde: 'Come stai nel profondo oggi? Cosa senti?', Rosso: 'Cosa vuoi conquistare oggi? Dove metti la tua energia?' };
+    document.getElementById('checkin-question').textContent = checkinQ[profile.colore_dominante] || 'Come stai oggi?';
+    if (profile.sfere) {
+      sfere = { ...sfere, ...profile.sfere };
+      Object.keys(sfere).forEach(s => updateSferaUI(s, sfere[s]));
     }
   }
 
-  function showCall() { document.getElementById('call-page').classList.add('visible'); }
-  function hideCall() {
-    document.getElementById('call-page').classList.remove('visible');
-    document.getElementById('tavus-container').classList.remove('visible');
-    document.getElementById('tavus-iframe').src = '';
+  const { data: vittorie } = await db.from('vittorie').select('*').eq('user_id', currentUser.id).order('data_vittoria', { ascending: false });
+  if (vittorie) {
+    document.getElementById('stat-vittorie').textContent = vittorie.length;
+    const vittorieHome = document.getElementById('vittorie-home');
+    vittorieHome.innerHTML = vittorie.slice(0,4).map(v => `<div class="win-item"><div class="win-check">✓</div><div><div class="win-text">${v.descrizione}</div><div class="win-date">${v.data_vittoria||''} · ${v.categoria||''}</div></div></div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora</div>';
+    const vittorieList = document.getElementById('vittorie-list-full');
+    vittorieList.innerHTML = vittorie.map(v => `<div class="vittoria-item"><div class="vittoria-check">✓</div><div><div class="vittoria-text">${v.descrizione}</div><div class="vittoria-date">${v.data_vittoria||''}</div><span class="vittoria-cat">${v.categoria||''}</span></div></div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora — aggiungine una!</div>';
   }
-  async function startCall() {
-    const btn = document.querySelector('.call-btn-start');
-    btn.textContent = 'Connessione in corso...';
-    btn.disabled = true;
-    try {
-      const userName = document.getElementById('hero-name')?.textContent || 'Utente';
-      const response = await fetch('/api/create-conversation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userName })
-      });
-      const data = await response.json();
-      if (data.conversation_url) {
-        document.getElementById('tavus-container').classList.add('visible');
-        document.getElementById('tavus-iframe').src = data.conversation_url;
-      } else {
-        alert('Errore: ' + JSON.stringify(data));
-        btn.textContent = '▶ Inizia sessione';
-        btn.disabled = false;
-      }
-    } catch (err) {
-      alert('Errore di connessione: ' + err.message);
+
+  const { data: sessioni } = await db.from('sessioni').select('*').eq('user_id', currentUser.id).order('data_sessione', { ascending: false });
+  if (sessioni) {
+    document.getElementById('stat-sessioni').textContent = sessioni.length;
+    const sessList = document.getElementById('sessioni-list');
+    sessList.innerHTML = sessioni.map(s => `<div class="session-item"><div class="session-header"><span class="session-date">${s.data_sessione||''}</span><span class="session-tag">${s.blocco_emerso||'Sessione'}</span></div><div class="session-preview">${s.riassunto||s.note||'—'}</div></div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna sessione ancora</div>';
+  }
+
+  const { data: blocchi } = await db.from('blocchi').select('*').eq('user_id', currentUser.id);
+  const blocchiEl = document.getElementById('blocchi-list');
+  if (blocchi && blocchi.length > 0) {
+    const sc = { superato: 'status-done', 'in corso': 'status-progress', attivo: 'status-active' };
+    blocchiEl.innerHTML = blocchi.map(b => `<div class="block-row"><span class="block-name">${b.nome_blocco}</span><span class="block-status ${sc[b.stato?.toLowerCase()]||'status-active'}">${b.stato||'Attivo'}</span></div>`).join('');
+  }
+}
+
+// NAVIGATION
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+}
+
+// CHECK-IN
+function setCheckinMode(mode) {
+  document.querySelectorAll('.checkin-mode-btn').forEach((b,i) => b.classList.toggle('active', (mode==='scrivi'&&i===0)||(mode==='voce'&&i===1)));
+  if (mode === 'voce') {
+    document.getElementById('checkin-input').placeholder = '🎙 Clicca e parla — trascrizione automatica in arrivo';
+  }
+}
+function toggleEmotion(btn, emotion) {
+  btn.classList.toggle('selected');
+  if (btn.classList.contains('selected')) { selectedEmotions.push(emotion); } 
+  else { selectedEmotions = selectedEmotions.filter(e => e !== emotion); }
+}
+async function saveCheckin() {
+  const note = document.getElementById('checkin-input').value;
+  if (!note && selectedEmotions.length === 0) return;
+  await db.from('sessioni').insert({ user_id: currentUser.id, data_sessione: new Date().toISOString().split('T')[0], riassunto: 'Check-in: ' + selectedEmotions.join(', '), note: note, blocco_emerso: 'Check-in quotidiano', decisioni_autonome: 0 });
+  document.getElementById('checkin-done').style.display = 'block';
+  document.getElementById('checkin-input').value = '';
+  setTimeout(() => { document.getElementById('checkin-done').style.display = 'none'; }, 3000);
+  loadDashboard();
+}
+
+// SFERE
+function updateSfera(sfera, delta) {
+  sfere[sfera] = Math.max(0, Math.min(100, (sfere[sfera] || 0) + delta));
+  updateSferaUI(sfera, sfere[sfera]);
+  db.from('profiles').update({ sfere }).eq('id', currentUser.id);
+}
+function updateSferaUI(sfera, val) {
+  const el = document.getElementById('sfera-' + sfera);
+  const bar = document.getElementById('sbar-' + sfera);
+  if (el) el.textContent = val + '%';
+  if (bar) bar.style.width = val + '%';
+}
+
+// MODALS
+function showModal(id) { document.getElementById(id).classList.add('visible'); }
+function hideModal(id) { document.getElementById(id).classList.remove('visible'); }
+
+// SAVE SESSIONE
+async function saveSessione() {
+  const data = document.getElementById('sess-data').value || new Date().toISOString().split('T')[0];
+  const blocco = document.getElementById('sess-blocco').value;
+  const note = document.getElementById('sess-note').value;
+  const impegno = document.getElementById('sess-impegno').value;
+  if (!note && !blocco) return;
+  await db.from('sessioni').insert({ user_id: currentUser.id, data_sessione: data, blocco_emerso: blocco, note, impegno_preso: impegno, riassunto: blocco || 'Sessione' });
+  hideModal('modal-sessione');
+  loadDashboard();
+}
+
+// SAVE PROGRESSO
+async function saveProgresso() {
+  const sfera = document.getElementById('prog-sfera').value;
+  const titolo = document.getElementById('prog-titolo').value;
+  const note = document.getElementById('prog-note').value;
+  if (!titolo) return;
+  const today = new Date().toISOString().split('T')[0];
+  await db.from('vittorie').insert({ user_id: currentUser.id, descrizione: titolo, data_vittoria: today, categoria: sfera, note });
+  hideModal('modal-progresso');
+  loadDashboard();
+}
+
+// SAVE VITTORIA
+async function saveVittoria() {
+  const desc = document.getElementById('vitt-desc').value;
+  const cat = document.getElementById('vitt-cat').value;
+  if (!desc) return;
+  const today = new Date().toISOString().split('T')[0];
+  await db.from('vittorie').insert({ user_id: currentUser.id, descrizione: desc, data_vittoria: today, categoria: cat });
+  hideModal('modal-vittoria');
+  loadDashboard();
+}
+
+// CALL
+function showCall() { document.getElementById('call-page').classList.add('visible'); }
+function hideCall() {
+  document.getElementById('call-page').classList.remove('visible');
+  document.getElementById('tavus-container').classList.remove('visible');
+  document.getElementById('tavus-iframe').src = '';
+}
+async function startCall() {
+  const btn = document.querySelector('.call-btn-start');
+  btn.textContent = 'Connessione in corso...';
+  btn.disabled = true;
+  try {
+    const response = await fetch('/api/create-conversation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userName })
+    });
+    const data = await response.json();
+    if (data.conversation_url) {
+      document.getElementById('tavus-container').classList.add('visible');
+      document.getElementById('tavus-iframe').src = data.conversation_url;
+    } else {
+      alert('Errore: ' + JSON.stringify(data));
       btn.textContent = '▶ Inizia sessione';
       btn.disabled = false;
     }
+  } catch (err) {
+    alert('Errore: ' + err.message);
+    btn.textContent = '▶ Inizia sessione';
+    btn.disabled = false;
   }
-  function endCall() { 
-    hideCall();
-    document.querySelector('.call-btn-start').textContent = '▶ Inizia sessione';
-    document.querySelector('.call-btn-start').disabled = false;
-  }
-  function showPage(page) {}
+}
+function endCall() {
+  hideCall();
+  document.querySelector('.call-btn-start').textContent = '▶ Inizia sessione';
+  document.querySelector('.call-btn-start').disabled = false;
+}
 
-  checkSession();
+checkSession();
 </script>
 </body>
 </html>
