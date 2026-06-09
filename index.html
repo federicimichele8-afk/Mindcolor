@@ -531,6 +531,56 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-edit-vittoria">
+  <div class="modal">
+    <div class="modal-title">Modifica vittoria</div>
+    <input type="hidden" id="edit-vitt-id">
+    <input class="input-field" id="edit-vitt-desc" placeholder="Descrivi la tua vittoria">
+    <select class="input-field" id="edit-vitt-cat">
+      <option value="Business">💼 Business</option>
+      <option value="Relazioni">❤️ Relazioni</option>
+      <option value="Mente">🧠 Mente</option>
+      <option value="Salute">💪 Salute</option>
+      <option value="Decisione autonoma">🎯 Decisione autonoma</option>
+      <option value="Blocco superato">✅ Blocco superato</option>
+      <option value="Altro">⭐ Altro</option>
+    </select>
+    <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-edit-vittoria')">Annulla</button><button class="save-btn" onclick="updateVittoria()">Salva modifiche</button></div>
+  </div>
+</div>
+
+<!-- EDIT SESSIONE -->
+<div class="modal-overlay" id="modal-edit-sessione">
+  <div class="modal">
+    <div class="modal-title">Modifica sessione</div>
+    <input type="hidden" id="edit-sess-id">
+    <input class="input-field" id="edit-sess-data" type="date">
+    <input class="input-field" id="edit-sess-blocco" placeholder="Blocco o tema affrontato">
+    <textarea class="textarea-field" id="edit-sess-note" placeholder="I tuoi appunti..."></textarea>
+    <input class="input-field" id="edit-sess-impegno" placeholder="Impegno preso per le prossime 24h">
+    <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-edit-sessione')">Annulla</button><button class="save-btn" onclick="updateSessione()">Salva modifiche</button></div>
+  </div>
+</div>
+
+<!-- EDIT PROGRESSO -->
+<div class="modal-overlay" id="modal-edit-progresso">
+  <div class="modal">
+    <div class="modal-title">Modifica progresso</div>
+    <input type="hidden" id="edit-prog-id">
+    <select class="input-field" id="edit-prog-sfera">
+      <option value="business">💼 Business</option>
+      <option value="relazioni">❤️ Relazioni</option>
+      <option value="mente">🧠 Mente</option>
+      <option value="salute">💪 Salute</option>
+      <option value="finanze">💰 Finanze</option>
+      <option value="spiritualita">✨ Spiritualità</option>
+    </select>
+    <input class="input-field" id="edit-prog-titolo" placeholder="Cosa hai fatto o raggiunto?">
+    <textarea class="textarea-field" id="edit-prog-note" placeholder="Dettagli..."></textarea>
+    <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-edit-progresso')">Annulla</button><button class="save-btn" onclick="updateProgresso()">Salva modifiche</button></div>
+  </div>
+</div>
+
 <!-- CALL -->
 <div id="call-page">
   <div class="call-card">
@@ -680,6 +730,7 @@ async function loadDashboard() {
           <span class="vittoria-cat">${v.categoria||''}</span>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="editVittoria('${v.id}','${v.descrizione}','${v.categoria}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#666;">✏️</button>
           <button onclick="deleteVittoria('${v.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#999;">🗑</button>
         </div>
       </div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora — aggiungine una!</div>';
@@ -695,6 +746,7 @@ async function loadDashboard() {
           <span class="session-date">${s.data_sessione||''}</span>
           <div style="display:flex;align-items:center;gap:8px;">
             <span class="session-tag">${s.blocco_emerso||'Sessione'}</span>
+            <button onclick="editSessione('${s.id}','${s.data_sessione||''}','${(s.blocco_emerso||'').replace(/'/g,'`')}','${(s.note||'').replace(/'/g,'`')}','${(s.impegno_preso||'').replace(/'/g,'`')}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:#666;">✏️</button>
             <button onclick="deleteSessione('${s.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:#999;">🗑</button>
           </div>
         </div>
@@ -854,6 +906,7 @@ async function loadProgressi() {
           ${p.note ? '<div style="font-size:12px;color:#666;margin-top:4px">'+p.note+'</div>' : ''}
           <span class="vittoria-cat">${p.sfera||''}</span>
         </div>
+        <button onclick="editProgresso('${p.id}','${p.sfera||''}','${(p.titolo||'').replace(/'/g,'`')}','${(p.note||'').replace(/'/g,'`')}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#666;flex-shrink:0;">✏️</button>
         <button onclick="deleteProgresso('${p.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#999;flex-shrink:0;">🗑</button>
       </div>`).join('');
   } else {
@@ -910,9 +963,46 @@ function endCall() {
   document.querySelector('.call-btn-start').disabled = false;
 }
 
+function editVittoria(id, desc, cat) {
+  document.getElementById('edit-vitt-id').value = id;
+  document.getElementById('edit-vitt-desc').value = desc;
+  document.getElementById('edit-vitt-cat').value = cat;
+  showModal('modal-edit-vittoria');
+}
+
+async function updateVittoria() {
+  const id = document.getElementById('edit-vitt-id').value;
+  const desc = document.getElementById('edit-vitt-desc').value;
+  const cat = document.getElementById('edit-vitt-cat').value;
+  if (!desc) return;
+  await db.from('vittorie').update({ descrizione: desc, categoria: cat }).eq('id', id);
+  hideModal('modal-edit-vittoria');
+  loadDashboard();
+}
+
 async function deleteVittoria(id) {
   if (!confirm('Eliminare questa vittoria?')) return;
   await db.from('vittorie').delete().eq('id', id);
+  loadDashboard();
+}
+
+function editSessione(id, data, blocco, note, impegno) {
+  document.getElementById('edit-sess-id').value = id;
+  document.getElementById('edit-sess-data').value = data;
+  document.getElementById('edit-sess-blocco').value = blocco;
+  document.getElementById('edit-sess-note').value = note;
+  document.getElementById('edit-sess-impegno').value = impegno;
+  showModal('modal-edit-sessione');
+}
+
+async function updateSessione() {
+  const id = document.getElementById('edit-sess-id').value;
+  const data = document.getElementById('edit-sess-data').value;
+  const blocco = document.getElementById('edit-sess-blocco').value;
+  const note = document.getElementById('edit-sess-note').value;
+  const impegno = document.getElementById('edit-sess-impegno').value;
+  await db.from('sessioni').update({ data_sessione: data, blocco_emerso: blocco, note, impegno_preso: impegno }).eq('id', id);
+  hideModal('modal-edit-sessione');
   loadDashboard();
 }
 
@@ -920,6 +1010,25 @@ async function deleteSessione(id) {
   if (!confirm('Eliminare questa sessione?')) return;
   await db.from('sessioni').delete().eq('id', id);
   loadDashboard();
+}
+
+function editProgresso(id, sfera, titolo, note) {
+  document.getElementById('edit-prog-id').value = id;
+  document.getElementById('edit-prog-sfera').value = sfera;
+  document.getElementById('edit-prog-titolo').value = titolo;
+  document.getElementById('edit-prog-note').value = note;
+  showModal('modal-edit-progresso');
+}
+
+async function updateProgresso() {
+  const id = document.getElementById('edit-prog-id').value;
+  const sfera = document.getElementById('edit-prog-sfera').value;
+  const titolo = document.getElementById('edit-prog-titolo').value;
+  const note = document.getElementById('edit-prog-note').value;
+  if (!titolo) return;
+  await db.from('progressi').update({ sfera, titolo, note }).eq('id', id);
+  hideModal('modal-edit-progresso');
+  loadProgressi();
 }
 
 async function deleteProgresso(id) {
