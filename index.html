@@ -948,4 +948,63 @@ async function updateVittoria() {
   const cat = document.getElementById('edit-vitt-cat').value;
   if (!desc) return;
   await db.from('vittorie').update({ descrizione: desc, categoria: cat }).eq('id', id);
-  hideModal('modal-edit-vitto
+  ria');
+  loadDashboard();
+}
+async function deleteVittoria(id) {
+  if (!confirm('Eliminare questa vittoria?')) return;
+  await db.from('vittorie').delete().eq('id', id);
+  loadDashboard();
+}
+
+function editSessione(id, data, blocco, note, impegno) {
+  document.getElementById('edit-sess-id').value = id;
+  document.getElementById('edit-sess-data').value = data;
+  document.getElementById('edit-sess-blocco').value = blocco;
+  document.getElementById('edit-sess-note').value = note;
+  document.getElementById('edit-sess-impegno').value = impegno;
+  showModal('modal-edit-sessione');
+}
+async function updateSessione() {
+  const id = document.getElementById('edit-sess-id').value;
+  const data = document.getElementById('edit-sess-data').value;
+  const blocco = document.getElementById('edit-sess-blocco').value;
+  const note = document.getElementById('edit-sess-note').value;
+  const impegno = document.getElementById('edit-sess-impegno').value;
+  await db.from('sessioni').update({ data_sessione: data, blocco_emerso: blocco, note, impegno_preso: impegno }).eq('id', id);
+  hideModal('modal-edit-sessione');
+  loadDashboard();
+}
+async function deleteSessione(id) {
+  if (!confirm('Eliminare questa sessione?')) return;
+  await db.from('sessioni').delete().eq('id', id);
+  loadDashboard();
+}
+
+function editProgresso(id, sfera, titolo, note) {
+  document.getElementById('edit-prog-id').value = id;
+  document.getElementById('edit-prog-sfera').value = sfera;
+  document.getElementById('edit-prog-titolo').value = titolo;
+  document.getElementById('edit-prog-note').value = note;
+  showModal('modal-edit-progresso');
+}
+async function updateProgresso() {
+  const id = document.getElementById('edit-prog-id').value;
+  const sfera = document.getElementById('edit-prog-sfera').value;
+  const titolo = document.getElementById('edit-prog-titolo').value;
+  const note = document.getElementById('edit-prog-note').value;
+  if (!titolo) return;
+  await db.from('progressi').update({ sfera, titolo, note }).eq('id', id);
+  hideModal('modal-edit-progresso');
+  loadProgressi();
+}
+async function deleteProgresso(id) {
+  if (!confirm('Eliminare questo progresso?')) return;
+  await db.from('progressi').delete().eq('id', id);
+  loadProgressi();
+}
+
+checkSession();
+</script>
+</body>
+</html>
