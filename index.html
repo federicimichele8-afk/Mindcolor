@@ -8,8 +8,6 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; }
-
-/* SIDEBAR */
 .sidebar { width: 240px; background: #1a1a1a; min-height: 100vh; padding: 1.5rem 1rem; display: flex; flex-direction: column; flex-shrink: 0; position: fixed; height: 100vh; overflow-y: auto; }
 .sidebar-logo { color: #fff; font-size: 18px; font-weight: 500; padding: 0.5rem 0.75rem; margin-bottom: 2rem; }
 .sidebar-logo span { color: #EF9F27; }
@@ -24,13 +22,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #EF9F27; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 500; flex-shrink: 0; }
 .user-name { color: #fff; font-size: 13px; font-weight: 500; }
 .user-email { color: #666; font-size: 11px; }
-
-/* MAIN */
 .main { flex: 1; margin-left: 240px; padding: 2rem; overflow-y: auto; min-height: 100vh; }
 .page { display: none; }
 .page.active { display: block; }
-
-/* HERO */
 .hero { background: #1a1a1a; border-radius: 16px; padding: 2rem; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
 .hero::before { content: ''; position: absolute; top: -50px; right: -50px; width: 220px; height: 220px; border-radius: 50%; background: #EF9F27; opacity: 0.07; pointer-events: none; }
 .hero::after { content: ''; position: absolute; bottom: -70px; left: 35%; width: 180px; height: 180px; border-radius: 50%; background: #7F77DD; opacity: 0.06; pointer-events: none; }
@@ -43,8 +37,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .hero-stat-value { color: #fff; font-size: 28px; font-weight: 500; }
 .hero-stat-label { color: #666; font-size: 12px; margin-top: 3px; }
 .hero-stat-delta { font-size: 11px; color: #639922; margin-top: 3px; }
-
-/* CHECK-IN */
 .checkin-card { background: #fff; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.25rem; border: 0.5px solid #e8e8e8; }
 .checkin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 .checkin-title { font-size: 15px; font-weight: 500; color: #333; }
@@ -59,8 +51,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .emotion-btn.selected { background: #FAEEDA; border-color: #EF9F27; color: #854F0B; }
 .checkin-submit { background: #1a1a1a; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; cursor: pointer; }
 .checkin-done { background: #EAF3DE; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #3B6D11; display: none; }
-
-/* COLOR CARDS */
 .color-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.25rem; }
 .color-card { background: #fff; border-radius: 14px; padding: 1.25rem; border: 0.5px solid #e8e8e8; }
 .color-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -70,8 +60,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .color-card-bar { height: 4px; border-radius: 2px; background: #f0f0f0; overflow: hidden; margin-top: 10px; }
 .color-card-fill { height: 100%; border-radius: 2px; }
 .color-card-label { font-size: 11px; color: #999; margin-top: 6px; }
-
-/* JOURNEY */
 .journey { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.25rem; }
 .section-title { font-size: 11px; font-weight: 500; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 1.25rem; }
 .journey-track { display: flex; align-items: flex-start; }
@@ -83,8 +71,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .step-active { background: #EF9F27; color: #fff; }
 .step-future { background: #f5f5f5; color: #bbb; border: 0.5px solid #e8e8e8; }
 .step-label { font-size: 11px; color: #999; margin-top: 8px; text-align: center; line-height: 1.3; }
-
-/* BOTTOM GRID */
 .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .b-card { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; }
 .next-action { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 10px; background: #f9f9f7; margin-bottom: 8px; cursor: pointer; }
@@ -104,17 +90,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .status-done { background: #EAF3DE; color: #3B6D11; }
 .status-progress { background: #E6F1FB; color: #185FA5; }
 .status-active { background: #FAEEDA; color: #854F0B; }
-
-/* PAGE HEADER */
 .page-header { margin-bottom: 1.5rem; }
 .page-title { font-size: 22px; font-weight: 500; color: #333; }
 .page-sub { font-size: 13px; color: #999; margin-top: 4px; }
-
-/* CARDS GENERICI */
 .card { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; }
 .card-title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 1rem; }
-
-/* SESSIONI */
 .session-item { padding: 1rem; border: 0.5px solid #e8e8e8; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; }
 .session-item:hover { border-color: #EF9F27; background: #fffdf9; }
 .session-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
@@ -129,8 +109,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .textarea-field:focus { border-color: #EF9F27; }
 .save-btn { background: #1a1a1a; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; cursor: pointer; }
 .cancel-btn { background: transparent; color: #999; border: 0.5px solid #e8e8e8; padding: 10px 20px; border-radius: 10px; font-size: 13px; cursor: pointer; margin-left: 8px; }
-
-/* PROGRESSI - SFERE */
 .sfere-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
 .sfera-card { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.25rem; }
 .sfera-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
@@ -139,18 +117,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .sfera-pct { font-size: 22px; font-weight: 500; color: #333; margin-bottom: 6px; }
 .sfera-bar-track { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
 .sfera-bar-fill { height: 100%; border-radius: 3px; }
-.sfera-actions { display: flex; gap: 6px; }
-.sfera-btn { flex: 1; padding: 6px; border-radius: 6px; border: 0.5px solid #e8e8e8; background: #fff; font-size: 11px; cursor: pointer; color: #666; transition: all 0.15s; }
-.sfera-btn:hover { background: #f5f5f0; }
-
-/* VITTORIE */
 .vittoria-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border: 0.5px solid #e8e8e8; border-radius: 12px; margin-bottom: 8px; }
 .vittoria-check { width: 24px; height: 24px; border-radius: 50%; background: #EAF3DE; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #3B6D11; font-size: 12px; }
 .vittoria-text { font-size: 13px; color: #333; font-weight: 500; }
 .vittoria-date { font-size: 11px; color: #999; margin-top: 2px; }
 .vittoria-cat { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0f0f0; color: #666; margin-top: 4px; display: inline-block; }
-
-/* TIMELINE */
 .timeline-item { display: flex; gap: 16px; margin-bottom: 20px; position: relative; }
 .timeline-item:not(:last-child)::before { content: ''; position: absolute; left: 19px; top: 38px; bottom: -20px; width: 2px; background: #e8e8e8; }
 .timeline-dot { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
@@ -159,8 +130,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .timeline-title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 4px; }
 .timeline-desc { font-size: 13px; color: #666; line-height: 1.5; }
 .timeline-tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-top: 6px; }
-
-/* COLORI PAGE */
 .colori-hero { background: #1a1a1a; border-radius: 16px; padding: 2rem; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
 .colori-hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: #EF9F27; opacity: 0.08; pointer-events: none; }
 .colori-name { color: #fff; font-size: 22px; font-weight: 500; margin-bottom: 4px; }
@@ -177,20 +146,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .colore-desc-dot { width: 12px; height: 12px; border-radius: 50%; }
 .colore-desc-title { font-size: 14px; font-weight: 500; color: #333; }
 .colore-desc-text { font-size: 13px; color: #666; line-height: 1.6; }
-
-/* PERIODO BUTTONS */
 .periodo-btn { padding: 6px 14px; border-radius: 20px; border: 0.5px solid #e8e8e8; background: #fff; font-size: 12px; cursor: pointer; color: #666; transition: all 0.15s; }
 .periodo-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
 .periodo-btn:hover { border-color: #999; }
-
-/* MODALS */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; }
 .modal-overlay.visible { display: flex; }
 .modal { background: #fff; border-radius: 20px; padding: 2rem; max-width: 480px; width: 90%; }
 .modal-title { font-size: 17px; font-weight: 500; color: #333; margin-bottom: 1.5rem; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1rem; }
-
-/* AUTH */
 #auth-page { display: flex; position: fixed; inset: 0; background: #0d0d0d; z-index: 2000; align-items: center; justify-content: center; }
 #auth-page.hidden { display: none; }
 .auth-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; max-width: 400px; width: 90%; border: 0.5px solid rgba(255,255,255,0.08); }
@@ -204,8 +167,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .auth-input:focus { border-color: #EF9F27; }
 .auth-btn { width: 100%; background: #EF9F27; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 6px; }
 .auth-error { color: #E24B4A; font-size: 12px; margin-top: 8px; display: none; }
-
-/* ONBOARDING */
 #onboarding-page { display: none; position: fixed; inset: 0; background: #0d0d0d; z-index: 1500; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem; }
 #onboarding-page.visible { display: flex; }
 .onboarding-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; max-width: 520px; width: 100%; border: 0.5px solid rgba(255,255,255,0.08); }
@@ -228,8 +189,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .onboarding-progress { display: flex; gap: 6px; margin-bottom: 2rem; }
 .progress-dot { flex: 1; height: 3px; border-radius: 2px; background: #333; }
 .progress-dot.active { background: #EF9F27; }
-
-/* CALL */
 #call-page { display: none; position: fixed; inset: 0; background: #0d0d0d; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
 #call-page.visible { display: flex; }
 .call-card { background: #1a1a1a; border-radius: 20px; padding: 2.5rem; text-align: center; max-width: 420px; width: 90%; border: 0.5px solid rgba(255,255,255,0.08); }
@@ -316,8 +275,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <!-- MAIN -->
 <div class="main">
-
-  <!-- HOME -->
   <div class="page active" id="page-home">
     <div class="hero">
       <div class="hero-top">
@@ -331,8 +288,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <div><div class="hero-stat-value" id="stat-vittorie">0</div><div class="hero-stat-label">Vittorie registrate</div><div class="hero-stat-delta"></div></div>
       </div>
     </div>
-
-    <!-- CHECK-IN -->
     <div class="checkin-card" id="checkin-card">
       <div class="checkin-header">
         <div><div class="checkin-title" id="checkin-question">Come stai oggi?</div><div class="checkin-subtitle">Check-in quotidiano</div></div>
@@ -353,14 +308,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <button class="checkin-submit" onclick="saveCheckin()">Salva il check-in →</button>
       <div class="checkin-done" id="checkin-done">✓ Check-in salvato. Buona giornata.</div>
     </div>
-
     <div class="color-strip">
       <div class="color-card"><div class="color-card-top"><span class="color-card-name">Giallo</span><div class="color-dot" style="background:#EF9F27"></div></div><div class="color-card-pct" style="color:#EF9F27" id="pct-giallo">—</div><div class="color-card-bar"><div class="color-card-fill" id="bar-giallo" style="width:0%;background:#EF9F27"></div></div><div class="color-card-label" id="label-giallo">—</div></div>
       <div class="color-card"><div class="color-card-top"><span class="color-card-name">Blu</span><div class="color-dot" style="background:#378ADD"></div></div><div class="color-card-pct" style="color:#378ADD" id="pct-blu">—</div><div class="color-card-bar"><div class="color-card-fill" id="bar-blu" style="width:0%;background:#378ADD"></div></div><div class="color-card-label" id="label-blu">—</div></div>
       <div class="color-card"><div class="color-card-top"><span class="color-card-name">Verde</span><div class="color-dot" style="background:#97C459"></div></div><div class="color-card-pct" style="color:#639922" id="pct-verde">—</div><div class="color-card-bar"><div class="color-card-fill" id="bar-verde" style="width:0%;background:#97C459"></div></div><div class="color-card-label" id="label-verde">—</div></div>
       <div class="color-card"><div class="color-card-top"><span class="color-card-name">Rosso</span><div class="color-dot" style="background:#E24B4A"></div></div><div class="color-card-pct" style="color:#E24B4A" id="pct-rosso">—</div><div class="color-card-bar"><div class="color-card-fill" id="bar-rosso" style="width:0%;background:#E24B4A"></div></div><div class="color-card-label" id="label-rosso">—</div></div>
     </div>
-
     <div class="journey">
       <div class="section-title">Il tuo percorso</div>
       <div class="journey-track">
@@ -372,7 +325,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <div class="journey-step"><div class="step-dot step-future">6</div><div class="step-label">Mastery</div></div>
       </div>
     </div>
-
     <div class="bottom-grid">
       <div class="b-card">
         <div class="section-title">Prossime azioni</div>
@@ -390,7 +342,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
 
-  <!-- I MIEI COLORI -->
   <div class="page" id="page-colori">
     <div class="page-header"><div class="page-title">I miei colori</div><div class="page-sub">Il tuo profilo neuropsicologico basato sul metodo Tailor Selling</div></div>
     <div class="colori-hero">
@@ -411,14 +362,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
 
-  <!-- SESSIONI -->
   <div class="page" id="page-sessioni">
     <div class="page-header"><div class="page-title">Sessioni</div><div class="page-sub">Le tue conversazioni con Gianluca e i tuoi appunti</div></div>
     <button class="add-btn" onclick="showModal('modal-sessione')">+ Aggiungi appunti sessione</button>
     <div id="sessioni-list"></div>
   </div>
 
-  <!-- PROGRESSI -->
   <div class="page" id="page-progressi">
     <div class="page-header"><div class="page-title">Progressi</div><div class="page-sub">Monitora la tua evoluzione in ogni sfera della vita</div></div>
     <button class="add-btn" onclick="showModal('modal-progresso')">+ Aggiungi un progresso</button>
@@ -449,18 +398,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
     <div class="card">
       <div class="card-title">Attività registrate</div>
-      <div id="progressi-list"><div style="font-size:13px;color:#999">Nessuna attività ancora — aggiungi il tuo primo progresso</div></div>
+      <div id="progressi-list"><div style="font-size:13px;color:#999">Nessuna attività ancora</div></div>
     </div>
   </div>
 
-  <!-- VITTORIE -->
   <div class="page" id="page-vittorie">
     <div class="page-header"><div class="page-title">Vittorie</div><div class="page-sub">Ogni traguardo conta — piccolo o grande</div></div>
     <button class="add-btn" onclick="showModal('modal-vittoria')">+ Aggiungi una vittoria</button>
     <div id="vittorie-list-full"></div>
   </div>
 
-  <!-- TIMELINE -->
   <div class="page" id="page-timeline">
     <div class="page-header"><div class="page-title">Timeline</div><div class="page-sub">Il tuo viaggio dall'inizio ad oggi</div></div>
     <div id="timeline-list">
@@ -475,7 +422,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- MODALS -->
@@ -489,7 +435,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-sessione')">Annulla</button><button class="save-btn" onclick="saveSessione()">Salva</button></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="modal-progresso">
   <div class="modal">
     <div class="modal-title">Aggiungi un progresso</div>
@@ -506,7 +451,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-progresso')">Annulla</button><button class="save-btn" onclick="saveProgresso()">Salva</button></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="modal-vittoria">
   <div class="modal">
     <div class="modal-title">Aggiungi una vittoria</div>
@@ -523,7 +467,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-vittoria')">Annulla</button><button class="save-btn" onclick="saveVittoria()">Salva</button></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="modal-edit-vittoria">
   <div class="modal">
     <div class="modal-title">Modifica vittoria</div>
@@ -541,7 +484,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-edit-vittoria')">Annulla</button><button class="save-btn" onclick="updateVittoria()">Salva modifiche</button></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="modal-edit-sessione">
   <div class="modal">
     <div class="modal-title">Modifica sessione</div>
@@ -553,7 +495,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="modal-actions"><button class="cancel-btn" onclick="hideModal('modal-edit-sessione')">Annulla</button><button class="save-btn" onclick="updateSessione()">Salva modifiche</button></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="modal-edit-progresso">
   <div class="modal">
     <div class="modal-title">Modifica progresso</div>
@@ -591,16 +532,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <script>
 const SUPABASE_URL = 'https://aphxfhuczkasrqvznjps.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwaHhmaHVjemthc3JxdnpuanBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTQwMzAsImV4cCI6MjA5NjU3MDAzMH0.-daz-VWrP0FCDeL6v0stsdfSOUEaVvuoc5l2gfkFnbc';
-
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
+let currentProfile = null;
 let authMode = 'login';
 let userName = '';
 let selectedEmotions = [];
 let sfere = { business:0, relazioni:0, mente:0, salute:0, finanze:0, spiritualita:0 };
 
-// AUTH
 async function checkSession() {
   const { data: { session } } = await db.auth.getSession();
   if (session) {
@@ -672,11 +612,11 @@ async function saveColors() {
   loadDashboard();
 }
 
-// DASHBOARD
 async function loadDashboard() {
   if (!currentUser) return;
   const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
   if (profile) {
+    currentProfile = profile;
     const nome = profile.nome || currentUser.email;
     userName = nome;
     const iniziali = nome.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
@@ -718,7 +658,7 @@ async function loadDashboard() {
           <button onclick="editVittoria('${v.id}','${v.descrizione}','${v.categoria}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#666;">✏️</button>
           <button onclick="deleteVittoria('${v.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#999;">🗑</button>
         </div>
-      </div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora — aggiungine una!</div>';
+      </div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora</div>';
   }
 
   const { data: sessioni } = await db.from('sessioni').select('*').eq('user_id', currentUser.id).order('data_sessione', { ascending: false });
@@ -749,7 +689,6 @@ async function loadDashboard() {
   }
 }
 
-// NAVIGATION
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -757,12 +696,9 @@ function showPage(page) {
   document.getElementById('nav-' + page).classList.add('active');
 }
 
-// CHECK-IN
 function setCheckinMode(mode) {
   document.querySelectorAll('.checkin-mode-btn').forEach((b,i) => b.classList.toggle('active', (mode==='scrivi'&&i===0)||(mode==='voce'&&i===1)));
-  if (mode === 'voce') {
-    document.getElementById('checkin-input').placeholder = '🎙 Clicca e parla — trascrizione automatica in arrivo';
-  }
+  if (mode === 'voce') document.getElementById('checkin-input').placeholder = '🎙 Clicca e parla — trascrizione automatica in arrivo';
 }
 function toggleEmotion(btn, emotion) {
   btn.classList.toggle('selected');
@@ -779,15 +715,12 @@ async function saveCheckin() {
   loadDashboard();
 }
 
-// SFERE
 let currentPeriodo = 1;
 let allProgressi = [];
 
 function setPeriodo(mesi) {
   currentPeriodo = mesi;
-  document.querySelectorAll('.periodo-btn').forEach(b => {
-    b.classList.toggle('active', parseInt(b.dataset.mesi) === mesi);
-  });
+  document.querySelectorAll('.periodo-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.mesi) === mesi));
   calcolaSfere();
 }
 
@@ -814,14 +747,10 @@ function calcolaSfere() {
     const top = sorted[0];
     const bottom = sorted[sorted.length-1];
     const sfereNomi = { business:'Business', relazioni:'Relazioni', mente:'Mente', salute:'Salute', finanze:'Finanze', spiritualita:'Spiritualità' };
-    let periodoTxt = '';
-    if (currentPeriodo === 1) periodoTxt = "Nell'ultimo mese";
-    else if (currentPeriodo < 12) periodoTxt = 'Negli ultimi ' + currentPeriodo + ' mesi';
-    else if (currentPeriodo === 12) periodoTxt = "Nell'ultimo anno";
-    else periodoTxt = 'Negli ultimi ' + Math.round(currentPeriodo/12) + ' anni';
+    let periodoTxt = currentPeriodo === 1 ? "Nell'ultimo mese" : currentPeriodo < 12 ? 'Negli ultimi ' + currentPeriodo + ' mesi' : currentPeriodo === 12 ? "Nell'ultimo anno" : 'Negli ultimi ' + Math.round(currentPeriodo/12) + ' anni';
     let insight = '<strong>' + periodoTxt + '</strong> hai dedicato più energia a <strong>' + sfereNomi[top] + '</strong> (' + Math.round(counts[top]/total*100) + '% delle attività).';
     if (counts[bottom] === 0) {
-      insight += ' <strong>' + sfereNomi[bottom] + '</strong> non ha ricevuto nessuna attenzione — potrebbe valere la pena dedicarci qualcosa.';
+      insight += ' <strong>' + sfereNomi[bottom] + '</strong> non ha ricevuto nessuna attenzione.';
     } else {
       insight += ' <strong>' + sfereNomi[bottom] + '</strong> ha ricevuto il minor focus (' + Math.round(counts[bottom]/total*100) + '%).';
     }
@@ -832,11 +761,9 @@ function calcolaSfere() {
   }
 }
 
-// MODALS
 function showModal(id) { document.getElementById(id).classList.add('visible'); }
 function hideModal(id) { document.getElementById(id).classList.remove('visible'); }
 
-// SAVE SESSIONE
 async function saveSessione() {
   const data = document.getElementById('sess-data').value || new Date().toISOString().split('T')[0];
   const blocco = document.getElementById('sess-blocco').value;
@@ -848,7 +775,6 @@ async function saveSessione() {
   loadDashboard();
 }
 
-// SAVE PROGRESSO
 async function saveProgresso() {
   const sfera = document.getElementById('prog-sfera').value;
   const titolo = document.getElementById('prog-titolo').value;
@@ -883,11 +809,10 @@ async function loadProgressi() {
         <button onclick="deleteProgresso('${p.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#999;flex-shrink:0;">🗑</button>
       </div>`).join('');
   } else {
-    list.innerHTML = '<div style="font-size:13px;color:#999">Nessun progresso ancora — aggiungi la tua prima attività</div>';
+    list.innerHTML = '<div style="font-size:13px;color:#999">Nessun progresso ancora</div>';
   }
 }
 
-// SAVE VITTORIA
 async function saveVittoria() {
   const desc = document.getElementById('vitt-desc').value;
   const cat = document.getElementById('vitt-cat').value;
@@ -898,13 +823,13 @@ async function saveVittoria() {
   loadDashboard();
 }
 
-// CALL — usa user_id per passare profilo completo a Tavus
 function showCall() { document.getElementById('call-page').classList.add('visible'); }
 function hideCall() {
   document.getElementById('call-page').classList.remove('visible');
   document.getElementById('tavus-container').classList.remove('visible');
   document.getElementById('tavus-iframe').src = '';
 }
+
 async function startCall() {
   const btn = document.querySelector('.call-btn-start');
   btn.textContent = 'Connessione in corso...';
@@ -913,7 +838,17 @@ async function startCall() {
     const response = await fetch('/api/create-conversation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: currentUser.id })
+      body: JSON.stringify({
+        user_name: userName,
+        colore_dominante: currentProfile ? currentProfile.colore_dominante : '',
+        pct_giallo: currentProfile ? currentProfile.pct_giallo : 0,
+        pct_blu: currentProfile ? currentProfile.pct_blu : 0,
+        pct_verde: currentProfile ? currentProfile.pct_verde : 0,
+        pct_rosso: currentProfile ? currentProfile.pct_rosso : 0,
+        ultimo_blocco: '',
+        ultimo_impegno: '',
+        fase_percorso: 'Inizio'
+      })
     });
     const data = await response.json();
     if (data.conversation_url) {
@@ -930,6 +865,7 @@ async function startCall() {
     btn.disabled = false;
   }
 }
+
 function endCall() {
   hideCall();
   document.querySelector('.call-btn-start').textContent = '▶ Inizia sessione';
