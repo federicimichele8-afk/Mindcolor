@@ -65,4 +65,4 @@ module.exports = async function handler(req, res) {
       "Impegno preso: " + (ultimo_impegno || "nessuno") + ".\n" +
       "Fase del percorso: " + fase_percorso + ".\n" +
       (knowledge ? "\nCONTENUTI RILEVANTI DAL METODO DI GIANLUCA:\n" + knowledge : "") +
-      "\n\nParla SEMPRE e SOLO in italiano. Mai in ingle
+      "\n\nParla SEMPRE e SOLO in italiano. Mai in inglese.";
