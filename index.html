@@ -948,7 +948,7 @@ async function updateVittoria() {
   const cat = document.getElementById('edit-vitt-cat').value;
   if (!desc) return;
   await db.from('vittorie').update({ descrizione: desc, categoria: cat }).eq('id', id);
-  ria');
+  hideModal('modal-edit-vittoria');
   loadDashboard();
 }
 async function deleteVittoria(id) {
