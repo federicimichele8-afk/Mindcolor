@@ -422,8 +422,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="page" id="page-progressi">
     <div class="page-header"><div class="page-title">Progressi</div><div class="page-sub">Monitora la tua evoluzione in ogni sfera della vita</div></div>
     <button class="add-btn" onclick="showModal('modal-progresso')">+ Aggiungi un progresso</button>
-
-    <!-- PERIODO SELECTOR -->
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;">
       <span style="font-size:13px;color:#666">Mostra gli ultimi:</span>
       <div style="display:flex;gap:6px;flex-wrap:wrap;" id="periodo-selector">
@@ -437,8 +435,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <button class="periodo-btn" onclick="setPeriodo(60)" data-mesi="60">5 anni</button>
       </div>
     </div>
-
-    <!-- SFERE CARDS - automatiche -->
     <div class="sfere-grid" id="sfere-grid">
       <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💼</span><span class="sfera-name">Business</span></div><div class="sfera-pct" id="sfera-business">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-business" style="width:0%;background:#EF9F27"></div></div><div style="font-size:11px;color:#999;margin-top:6px;" id="sfera-count-business">0 attività</div></div>
       <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">❤️</span><span class="sfera-name">Relazioni</span></div><div class="sfera-pct" id="sfera-relazioni">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-relazioni" style="width:0%;background:#E24B4A"></div></div><div style="font-size:11px;color:#999;margin-top:6px;" id="sfera-count-relazioni">0 attività</div></div>
@@ -447,13 +443,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">💰</span><span class="sfera-name">Finanze</span></div><div class="sfera-pct" id="sfera-finanze">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-finanze" style="width:0%;background:#EF9F27"></div></div><div style="font-size:11px;color:#999;margin-top:6px;" id="sfera-count-finanze">0 attività</div></div>
       <div class="sfera-card"><div class="sfera-header"><span class="sfera-icon">✨</span><span class="sfera-name">Spiritualità</span></div><div class="sfera-pct" id="sfera-spiritualita">0%</div><div class="sfera-bar-track"><div class="sfera-bar-fill" id="sbar-spiritualita" style="width:0%;background:#7F77DD"></div></div><div style="font-size:11px;color:#999;margin-top:6px;" id="sfera-count-spiritualita">0 attività</div></div>
     </div>
-
-    <!-- INSIGHT -->
     <div class="card" id="insight-card" style="margin-bottom:1rem;display:none;">
       <div class="card-title">💡 Insight del periodo</div>
       <div id="insight-text" style="font-size:13px;color:#666;line-height:1.6;"></div>
     </div>
-
     <div class="card">
       <div class="card-title">Attività registrate</div>
       <div id="progressi-list"><div style="font-size:13px;color:#999">Nessuna attività ancora — aggiungi il tuo primo progresso</div></div>
@@ -549,7 +542,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 </div>
 
-<!-- EDIT SESSIONE -->
 <div class="modal-overlay" id="modal-edit-sessione">
   <div class="modal">
     <div class="modal-title">Modifica sessione</div>
@@ -562,7 +554,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 </div>
 
-<!-- EDIT PROGRESSO -->
 <div class="modal-overlay" id="modal-edit-progresso">
   <div class="modal">
     <div class="modal-title">Modifica progresso</div>
@@ -600,8 +591,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <script>
 const SUPABASE_URL = 'https://aphxfhuczkasrqvznjps.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwaHhmaHVjemthc3JxdnpuanBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTQwMzAsImV4cCI6MjA5NjU3MDAzMH0.-daz-VWrP0FCDeL6v0stsdfSOUEaVvuoc5l2gfkFnbc';
-const TAVUS_API_KEY = 'f5802a9d02fc4c7a9eb65bacf8d98d55';
-const TAVUS_PERSONA_ID = 'p327cfdeb718';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -709,10 +698,6 @@ async function loadDashboard() {
     document.getElementById('colori-profilo-nome').textContent = 'Il tuo colore dominante è il ' + (profile.colore_dominante || '—');
     const checkinQ = { Giallo: 'Ciao! Cosa ti entusiasma di più oggi?', Blu: 'Come stai ragionando oggi? Su cosa vuoi fare chiarezza?', Verde: 'Come stai nel profondo oggi? Cosa senti?', Rosso: 'Cosa vuoi conquistare oggi? Dove metti la tua energia?' };
     document.getElementById('checkin-question').textContent = checkinQ[profile.colore_dominante] || 'Come stai oggi?';
-    if (profile.sfere) {
-      sfere = { ...sfere, ...profile.sfere };
-      Object.keys(sfere).forEach(s => updateSferaUI(s, sfere[s]));
-    }
   }
 
   const { data: vittorie } = await db.from('vittorie').select('*').eq('user_id', currentUser.id).order('data_vittoria', { ascending: false });
@@ -781,7 +766,7 @@ function setCheckinMode(mode) {
 }
 function toggleEmotion(btn, emotion) {
   btn.classList.toggle('selected');
-  if (btn.classList.contains('selected')) { selectedEmotions.push(emotion); } 
+  if (btn.classList.contains('selected')) { selectedEmotions.push(emotion); }
   else { selectedEmotions = selectedEmotions.filter(e => e !== emotion); }
 }
 async function saveCheckin() {
@@ -794,7 +779,7 @@ async function saveCheckin() {
   loadDashboard();
 }
 
-// SFERE - automatiche basate sui progressi
+// SFERE
 let currentPeriodo = 1;
 let allProgressi = [];
 
@@ -810,14 +795,11 @@ function calcolaSfere() {
   const sfereList = ['business','relazioni','mente','salute','finanze','spiritualita'];
   const cutoff = new Date();
   cutoff.setMonth(cutoff.getMonth() - currentPeriodo);
-
   const filtered = allProgressi.filter(p => p.data && new Date(p.data) >= cutoff);
   const counts = {};
   sfereList.forEach(s => counts[s] = 0);
   filtered.forEach(p => { if (counts[p.sfera] !== undefined) counts[p.sfera]++; });
-
   const total = Object.values(counts).reduce((a,b) => a+b, 0);
-
   sfereList.forEach(s => {
     const pct = total > 0 ? Math.round((counts[s] / total) * 100) : 0;
     const el = document.getElementById('sfera-' + s);
@@ -827,22 +809,19 @@ function calcolaSfere() {
     if (bar) bar.style.width = pct + '%';
     if (cnt) cnt.textContent = counts[s] + ' attività';
   });
-
-  // Insight
   if (total > 0) {
-    const sorted = sfereList.sort((a,b) => counts[b] - counts[a]);
+    const sorted = [...sfereList].sort((a,b) => counts[b] - counts[a]);
     const top = sorted[0];
     const bottom = sorted[sorted.length-1];
     const sfereNomi = { business:'Business', relazioni:'Relazioni', mente:'Mente', salute:'Salute', finanze:'Finanze', spiritualita:'Spiritualità' };
     let periodoTxt = '';
-    if (currentPeriodo === 1) periodoTxt = 'Nell ultimo mese';
+    if (currentPeriodo === 1) periodoTxt = "Nell'ultimo mese";
     else if (currentPeriodo < 12) periodoTxt = 'Negli ultimi ' + currentPeriodo + ' mesi';
-    else if (currentPeriodo === 12) periodoTxt = 'Nell ultimo anno';
+    else if (currentPeriodo === 12) periodoTxt = "Nell'ultimo anno";
     else periodoTxt = 'Negli ultimi ' + Math.round(currentPeriodo/12) + ' anni';
-    
-    let insight = '<strong>' + periodoTxt + '</strong> hai dedicato piu energia a <strong>' + sfereNomi[top] + '</strong> (' + Math.round(counts[top]/total*100) + '% delle attivita).';
+    let insight = '<strong>' + periodoTxt + '</strong> hai dedicato più energia a <strong>' + sfereNomi[top] + '</strong> (' + Math.round(counts[top]/total*100) + '% delle attività).';
     if (counts[bottom] === 0) {
-      insight += ' <strong>' + sfereNomi[bottom] + '</strong> non ha ricevuto nessuna attenzione - potrebbe valere la pena dedicarci qualcosa.';
+      insight += ' <strong>' + sfereNomi[bottom] + '</strong> non ha ricevuto nessuna attenzione — potrebbe valere la pena dedicarci qualcosa.';
     } else {
       insight += ' <strong>' + sfereNomi[bottom] + '</strong> ha ricevuto il minor focus (' + Math.round(counts[bottom]/total*100) + '%).';
     }
@@ -876,13 +855,7 @@ async function saveProgresso() {
   const note = document.getElementById('prog-note').value;
   if (!titolo) return;
   const today = new Date().toISOString().split('T')[0];
-  const { error } = await db.from('progressi').insert({ 
-    user_id: currentUser.id, 
-    sfera: sfera, 
-    titolo: titolo, 
-    note: note,
-    data: today
-  });
+  const { error } = await db.from('progressi').insert({ user_id: currentUser.id, sfera, titolo, note, data: today });
   if (error) { alert('Errore: ' + error.message); return; }
   hideModal('modal-progresso');
   document.getElementById('prog-titolo').value = '';
@@ -925,7 +898,7 @@ async function saveVittoria() {
   loadDashboard();
 }
 
-// CALL
+// CALL — usa user_id per passare profilo completo a Tavus
 function showCall() { document.getElementById('call-page').classList.add('visible'); }
 function hideCall() {
   document.getElementById('call-page').classList.remove('visible');
@@ -940,7 +913,7 @@ async function startCall() {
     const response = await fetch('/api/create-conversation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userName })
+      body: JSON.stringify({ user_id: currentUser.id })
     });
     const data = await response.json();
     if (data.conversation_url) {
@@ -969,75 +942,10 @@ function editVittoria(id, desc, cat) {
   document.getElementById('edit-vitt-cat').value = cat;
   showModal('modal-edit-vittoria');
 }
-
 async function updateVittoria() {
   const id = document.getElementById('edit-vitt-id').value;
   const desc = document.getElementById('edit-vitt-desc').value;
   const cat = document.getElementById('edit-vitt-cat').value;
   if (!desc) return;
   await db.from('vittorie').update({ descrizione: desc, categoria: cat }).eq('id', id);
-  hideModal('modal-edit-vittoria');
-  loadDashboard();
-}
-
-async function deleteVittoria(id) {
-  if (!confirm('Eliminare questa vittoria?')) return;
-  await db.from('vittorie').delete().eq('id', id);
-  loadDashboard();
-}
-
-function editSessione(id, data, blocco, note, impegno) {
-  document.getElementById('edit-sess-id').value = id;
-  document.getElementById('edit-sess-data').value = data;
-  document.getElementById('edit-sess-blocco').value = blocco;
-  document.getElementById('edit-sess-note').value = note;
-  document.getElementById('edit-sess-impegno').value = impegno;
-  showModal('modal-edit-sessione');
-}
-
-async function updateSessione() {
-  const id = document.getElementById('edit-sess-id').value;
-  const data = document.getElementById('edit-sess-data').value;
-  const blocco = document.getElementById('edit-sess-blocco').value;
-  const note = document.getElementById('edit-sess-note').value;
-  const impegno = document.getElementById('edit-sess-impegno').value;
-  await db.from('sessioni').update({ data_sessione: data, blocco_emerso: blocco, note, impegno_preso: impegno }).eq('id', id);
-  hideModal('modal-edit-sessione');
-  loadDashboard();
-}
-
-async function deleteSessione(id) {
-  if (!confirm('Eliminare questa sessione?')) return;
-  await db.from('sessioni').delete().eq('id', id);
-  loadDashboard();
-}
-
-function editProgresso(id, sfera, titolo, note) {
-  document.getElementById('edit-prog-id').value = id;
-  document.getElementById('edit-prog-sfera').value = sfera;
-  document.getElementById('edit-prog-titolo').value = titolo;
-  document.getElementById('edit-prog-note').value = note;
-  showModal('modal-edit-progresso');
-}
-
-async function updateProgresso() {
-  const id = document.getElementById('edit-prog-id').value;
-  const sfera = document.getElementById('edit-prog-sfera').value;
-  const titolo = document.getElementById('edit-prog-titolo').value;
-  const note = document.getElementById('edit-prog-note').value;
-  if (!titolo) return;
-  await db.from('progressi').update({ sfera, titolo, note }).eq('id', id);
-  hideModal('modal-edit-progresso');
-  loadProgressi();
-}
-
-async function deleteProgresso(id) {
-  if (!confirm('Eliminare questo progresso?')) return;
-  await db.from('progressi').delete().eq('id', id);
-  loadProgressi();
-}
-
-checkSession();
-</script>
-</body>
-</html>
+  hideModal('modal-edit-vitto
