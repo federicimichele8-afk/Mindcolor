@@ -1,5 +1,3 @@
-const { createClient } = require('@supabase/supabase-js')
-
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -9,34 +7,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { user_id } = req.body || {};
-    if (!user_id) return res.status(400).json({ error: 'user_id mancante' });
-
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY
-    )
-
-    const { data: profilo, error: profiloError } = await supabase
-      .from('profiles').select('*').eq('id', user_id).single()
-
-    if (profiloError || !profilo) return res.status(404).json({ error: 'Profilo non trovato' });
-
-    const { data: sessioni } = await supabase
-      .from('sessioni').select('*').eq('user_id', user_id)
-      .order('created_at', { ascending: false }).limit(1)
-
-    const ultimaSessione = sessioni?.[0] || null
-
-    const { count: numSessioni } = await supabase
-      .from('sessioni').select('id', { count: 'exact' }).eq('user_id', user_id)
-
-    let fase_percorso = 'Inizio'
-    if (numSessioni >= 2) fase_percorso = 'Profilo colori definito'
-    if (numSessioni >= 5) fase_percorso = 'Blocchi identificati'
-    if (numSessioni >= 10) fase_percorso = 'Lavoro sui pattern'
-    if (numSessioni >= 20) fase_percorso = 'Autonomia crescente'
-    if (numSessioni >= 30) fase_percorso = 'Mastery'
+    const { user_name, colore_dominante, pct_giallo, pct_blu, pct_verde, pct_rosso, ultimo_blocco, ultimo_impegno, fase_percorso } = req.body || {};
 
     const tavusResponse = await fetch('https://tavusapi.com/v2/conversations', {
       method: 'POST',
@@ -47,17 +18,17 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         replica_id: 'r58eb4ba7eec',
         persona_id: 'p327cfdeb718',
-        conversation_name: 'Sessione MindColor - ' + (profilo.nome || 'Utente'),
+        conversation_name: 'Sessione MindColor - ' + (user_name || 'Utente'),
         conversation_variables: {
-          user_name: profilo.nome || 'amico',
-          colore_dominante: profilo.colore_dominante || 'non definito',
-          pct_giallo: profilo.pct_giallo || 0,
-          pct_blu: profilo.pct_blu || 0,
-          pct_verde: profilo.pct_verde || 0,
-          pct_rosso: profilo.pct_rosso || 0,
-          ultimo_blocco: ultimaSessione?.blocco_emerso || 'nessuno ancora',
-          ultimo_impegno: ultimaSessione?.impegno_preso || 'nessuno ancora',
-          fase_percorso: fase_percorso
+          user_name: user_name || 'amico',
+          colore_dominante: colore_dominante || 'non definito',
+          pct_giallo: pct_giallo || 0,
+          pct_blu: pct_blu || 0,
+          pct_verde: pct_verde || 0,
+          pct_rosso: pct_rosso || 0,
+          ultimo_blocco: ultimo_blocco || 'nessuno ancora',
+          ultimo_impegno: ultimo_impegno || 'nessuno ancora',
+          fase_percorso: fase_percorso || 'Inizio'
         }
       })
     })
