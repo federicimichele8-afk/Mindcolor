@@ -13,13 +13,9 @@ module.exports = async function handler(req, res) {
     const conversation_id = b.conversation_id || b.data?.conversation_id || "";
 
     let transcript = "";
-    if (b.transcript) {
-      transcript = b.transcript;
-    } else if (b.properties?.analysis) {
-      transcript = b.properties.analysis;
-    } else if (b.data?.transcript) {
-      transcript = b.data.transcript;
-    }
+    if (b.transcript) transcript = b.transcript;
+    else if (b.properties?.analysis) transcript = b.properties.analysis;
+    else if (b.data?.transcript) transcript = b.data.transcript;
 
     console.log("user_id:", user_id);
     console.log("transcript length:", transcript.length);
@@ -29,6 +25,7 @@ module.exports = async function handler(req, res) {
     }
 
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+    const today = new Date().toISOString().split("T")[0];
 
     const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -39,10 +36,10 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 500,
+        max_tokens: 1000,
         messages: [{
           role: "user",
-          content: "Analizza questa trascrizione di una sessione di coaching. Restituisci SOLO un oggetto JSON valido senza markdown con questi campi: summary (stringa, riassunto in 2-3 frasi), blocco_emerso (stringa, il blocco principale emerso), impegno_preso (stringa, azione concreta entro 24 ore), insight (stringa, realizzazione piu importante). Trascrizione: " + transcript.substring(0, 3000)
+          content: "Analizza questa trascrizione di una sessione di coaching. Restituisci SOLO un oggetto JSON valido senza markdown con questi campi: summary (stringa, riassunto in 2-3 frasi), blocco_emerso (stringa, il blocco principale emerso), impegno_preso (stringa, azione concreta entro 24 ore), insight (stringa, realizzazione piu importante), vittorie (array di stringhe, eventuali vittorie o successi citati dall utente, array vuoto se nessuno), blocchi_superati (array di stringhe, eventuali blocchi superati citati, array vuoto se nessuno), argomenti (array di stringhe, massimo 5 argomenti principali toccati). Trascrizione: " + transcript.substring(0, 3000)
         }]
       })
     });
@@ -54,9 +51,20 @@ module.exports = async function handler(req, res) {
       const clean = text.replace(/```json|```/g, "").trim();
       parsed = JSON.parse(clean);
     } catch(e) {
-      parsed = { summary: text, blocco_emerso: "", impegno_preso: "", insight: "" };
+      parsed = { summary: text, blocco_emerso: "", impegno_preso: "", insight: "", vittorie: [], blocchi_superati: [], argomenti: [] };
     }
 
+    // Salva in sessioni
+    await supabase.from("sessioni").insert({
+      user_id,
+      data_sessione: today,
+      blocco_emerso: parsed.blocco_emerso || "",
+      impegno_preso: parsed.impegno_preso || "",
+      riassunto: parsed.summary || "",
+      note: (parsed.argomenti || []).join(", ")
+    });
+
+    // Salva in session_memory
     await supabase.from("session_memory").insert({
       user_id,
       conversation_id,
@@ -66,6 +74,7 @@ module.exports = async function handler(req, res) {
       insight: parsed.insight || ""
     });
 
+    // Aggiorna profilo utente
     if (user_id) {
       await supabase.from("profiles").update({
         ultimo_blocco: parsed.blocco_emerso || "",
@@ -73,6 +82,34 @@ module.exports = async function handler(req, res) {
       }).eq("id", user_id);
     }
 
+    // Salva vittorie emerse nella call
+    if (user_id && parsed.vittorie && parsed.vittorie.length > 0) {
+      for (const vittoria of parsed.vittorie) {
+        await supabase.from("vittorie").insert({
+          user_id,
+          descrizione: vittoria,
+          data_vittoria: today,
+          categoria: "Call coaching",
+          note: "Emerso automaticamente dalla sessione"
+        });
+      }
+    }
+
+    // Aggiorna blocchi superati
+    if (user_id && parsed.blocchi_superati && parsed.blocchi_superati.length > 0) {
+      for (const blocco of parsed.blocchi_superati) {
+        await supabase.from("blocchi").insert({
+          user_id,
+          nome_blocco: blocco,
+          stato: "superato",
+          data_identificazione: today,
+          data_superamento: today,
+          note: "Identificato automaticamente dalla sessione"
+        });
+      }
+    }
+
+    // Carica trascrizione nella knowledge base
     try {
       const voyageRes = await fetch("https://api.voyageai.com/v1/embeddings", {
         method: "POST",
