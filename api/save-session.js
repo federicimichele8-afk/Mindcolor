@@ -9,19 +9,20 @@ module.exports = async function handler(req, res) {
 
   try {
     const b = req.body || {};
-console.log("TAVUS WEBHOOK:", JSON.stringify(b).substring(0, 500));
-console.log("QUERY PARAMS:", JSON.stringify(req.query));
+    const user_id = req.query?.user_id || b.user_id || b.properties?.user_id || "";
     const conversation_id = b.conversation_id || b.data?.conversation_id || "";
-    const user_id = b.properties?.user_id || b.user_id || "";
 
     let transcript = "";
     if (b.transcript) {
       transcript = b.transcript;
-    } else if (b.data && b.data.transcript) {
+    } else if (b.properties?.analysis) {
+      transcript = b.properties.analysis;
+    } else if (b.data?.transcript) {
       transcript = b.data.transcript;
-    } else if (b.conversation && b.conversation.transcript) {
-      transcript = b.conversation.transcript;
     }
+
+    console.log("user_id:", user_id);
+    console.log("transcript length:", transcript.length);
 
     if (!transcript || transcript.length < 10) {
       return res.status(200).json({ success: true, message: "Nessuna trascrizione disponibile" });
@@ -72,7 +73,6 @@ console.log("QUERY PARAMS:", JSON.stringify(req.query));
       }).eq("id", user_id);
     }
 
-    const { Pinecone: VoyageClient } = require("@supabase/supabase-js");
     try {
       const voyageRes = await fetch("https://api.voyageai.com/v1/embeddings", {
         method: "POST",
@@ -82,7 +82,7 @@ console.log("QUERY PARAMS:", JSON.stringify(req.query));
       const voyageData = await voyageRes.json();
       if (voyageData.data) {
         await supabase.from("knowledge_base").insert({
-          content: "Sessione coaching - " + (parsed.summary || ""),
+          content: "Sessione coaching: " + (parsed.summary || transcript.substring(0, 500)),
           embedding: voyageData.data[0].embedding,
           metadata: { source: "session", user_id, conversation_id, blocco: parsed.blocco_emerso, insight: parsed.insight }
         });
@@ -92,6 +92,7 @@ console.log("QUERY PARAMS:", JSON.stringify(req.query));
     return res.status(200).json({ success: true, data: parsed });
 
   } catch (err) {
+    console.log("Errore save-session:", err.message);
     return res.status(500).json({ error: err.message });
   }
 }
