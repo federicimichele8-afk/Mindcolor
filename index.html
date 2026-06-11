@@ -854,6 +854,7 @@ async function startCall() {
     if (data.conversation_url) {
       document.getElementById('tavus-container').classList.add('visible');
       document.getElementById('tavus-iframe').src = data.conversation_url;
+      window.currentConversationId = data.conversation_id || '';
     } else {
       alert('Errore: ' + JSON.stringify(data));
       btn.textContent = '▶ Inizia sessione';
@@ -866,7 +867,17 @@ async function startCall() {
   }
 }
 
+function saveSession() {
+  if (!currentUser || !window.currentConversationId) return;
+  fetch("/api/save-session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id: currentUser.id, conversation_id: window.currentConversationId, transcript: "" })
+  }).catch(e => console.log("Save session error:", e));
+}
+
 function endCall() {
+  saveSession();
   hideCall();
   document.querySelector('.call-btn-start').textContent = '▶ Inizia sessione';
   document.querySelector('.call-btn-start').disabled = false;
