@@ -36,6 +36,7 @@ module.exports = async function handler(req, res) {
   try {
     const b = req.body || {};
     const user_name = b.user_name || "utente";
+    const user_id = b.user_id || "";
     const colore_dominante = b.colore_dominante || "";
     const pct_giallo = b.pct_giallo || 0;
     const pct_blu = b.pct_blu || 0;
@@ -44,6 +45,7 @@ module.exports = async function handler(req, res) {
     const ultimo_blocco = b.ultimo_blocco || "";
     const ultimo_impegno = b.ultimo_impegno || "";
     const fase_percorso = b.fase_percorso || "Inizio";
+
     let knowledge = "";
     try {
       const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -52,6 +54,7 @@ module.exports = async function handler(req, res) {
       const { data } = await supabase.rpc("search_knowledge", { query_embedding: embedding, match_count: 3 });
       if (data && data.length > 0) knowledge = data.map(function(d) { return d.content; }).join("\n\n");
     } catch(e) { console.log("RAG non disponibile:", e.message); }
+
     const context = "Stai parlando con " + user_name + ".\n" +
       "Colore dominante: " + colore_dominante + " (Giallo " + pct_giallo + "%, Blu " + pct_blu + "%, Verde " + pct_verde + "%, Rosso " + pct_rosso + "%).\n" +
       "Ultima sessione - blocco emerso: " + (ultimo_blocco || "nessuno ancora") + ".\n" +
@@ -59,11 +62,20 @@ module.exports = async function handler(req, res) {
       "Fase del percorso: " + fase_percorso + ".\n" +
       (knowledge ? "\nCONTENUTI RILEVANTI DAL METODO DI GIANLUCA:\n" + knowledge : "") +
       "\n\nParla SEMPRE e SOLO in italiano. Mai in inglese.";
+
     const tavusResponse = await fetch("https://tavusapi.com/v2/conversations", {
       method: "POST",
       headers: { "x-api-key": process.env.TAVUS_API_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({ replica_id: "r58eb4ba7eec", persona_id: "p327cfdeb718", conversation_name: "Sessione MindColor - " + user_name, conversational_context: context })
+      body: JSON.stringify({
+        replica_id: "r58eb4ba7eec",
+        persona_id: "p327cfdeb718",
+        conversation_name: "Sessione MindColor - " + user_name,
+        conversational_context: context,
+        callback_url: "https://mindcolor-cipb.vercel.app/api/save-session",
+        properties: { user_id: user_id }
+      })
     });
+
     const tavusData = await tavusResponse.json();
     if (!tavusResponse.ok) return res.status(500).json({ error: "Errore Tavus", dettaglio: tavusData });
     return res.status(200).json(tavusData);
