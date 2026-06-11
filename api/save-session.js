@@ -9,7 +9,8 @@ module.exports = async function handler(req, res) {
 
   try {
     const b = req.body || {};
-
+console.log("TAVUS WEBHOOK:", JSON.stringify(b).substring(0, 500));
+console.log("QUERY PARAMS:", JSON.stringify(req.query));
     const conversation_id = b.conversation_id || b.data?.conversation_id || "";
     const user_id = b.properties?.user_id || b.user_id || "";
 
