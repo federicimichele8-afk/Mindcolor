@@ -275,6 +275,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <!-- MAIN -->
 <div class="main">
+
+  <!-- HOME -->
   <div class="page active" id="page-home">
     <div class="hero">
       <div class="hero-top">
@@ -284,8 +286,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div class="hero-divider"></div>
       <div class="hero-stats">
         <div><div class="hero-stat-value" id="stat-sessioni">0</div><div class="hero-stat-label">Sessioni completate</div><div class="hero-stat-delta" id="stat-sessioni-delta"></div></div>
-        <div><div class="hero-stat-value" id="stat-ansia">—</div><div class="hero-stat-label">Livello ansia attuale</div><div class="hero-stat-delta"></div></div>
-        <div><div class="hero-stat-value" id="stat-vittorie">0</div><div class="hero-stat-label">Vittorie registrate</div><div class="hero-stat-delta"></div></div>
+        <div><div class="hero-stat-value" id="stat-stato">—</div><div class="hero-stat-label" id="stat-stato-label">Stato più recente</div></div>
+        <div><div class="hero-stat-value" id="stat-vittorie">0</div><div class="hero-stat-label">Vittorie registrate</div></div>
       </div>
     </div>
     <div class="checkin-card" id="checkin-card">
@@ -297,12 +299,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         </div>
       </div>
       <div class="checkin-emotions">
-        <button class="emotion-btn" onclick="toggleEmotion(this, 'Motivato')">🔥 Motivato</button>
-        <button class="emotion-btn" onclick="toggleEmotion(this, 'Ansioso')">😰 Ansioso</button>
-        <button class="emotion-btn" onclick="toggleEmotion(this, 'Sereno')">😌 Sereno</button>
-        <button class="emotion-btn" onclick="toggleEmotion(this, 'Stanco')">😴 Stanco</button>
-        <button class="emotion-btn" onclick="toggleEmotion(this, 'Confuso')">🌀 Confuso</button>
-        <button class="emotion-btn" onclick="toggleEmotion(this, 'Focalizzato')">🎯 Focalizzato</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this,'Motivato')">🔥 Motivato</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this,'Ansioso')">😰 Ansioso</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this,'Sereno')">😌 Sereno</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this,'Stanco')">😴 Stanco</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this,'Confuso')">🌀 Confuso</button>
+        <button class="emotion-btn" onclick="toggleEmotion(this,'Focalizzato')">🎯 Focalizzato</button>
       </div>
       <textarea class="checkin-input" id="checkin-input" placeholder="Cosa porti con te oggi? Cosa vuoi raggiungere? Come ti senti davvero..."></textarea>
       <button class="checkin-submit" onclick="saveCheckin()">Salva il check-in →</button>
@@ -316,14 +318,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
     <div class="journey">
       <div class="section-title">Il tuo percorso</div>
-      <div class="journey-track">
-        <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Inizio</div></div>
-        <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Profilo colori</div></div>
-        <div class="journey-step done"><div class="step-dot step-done">✓</div><div class="step-label">Blocchi identificati</div></div>
-        <div class="journey-step"><div class="step-dot step-active">4</div><div class="step-label">Lavoro sui pattern</div></div>
-        <div class="journey-step"><div class="step-dot step-future">5</div><div class="step-label">Autonomia</div></div>
-        <div class="journey-step"><div class="step-dot step-future">6</div><div class="step-label">Mastery</div></div>
-      </div>
+      <div class="journey-track" id="journey-track"></div>
     </div>
     <div class="bottom-grid">
       <div class="b-card">
@@ -342,6 +337,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
 
+  <!-- COLORI -->
   <div class="page" id="page-colori">
     <div class="page-header"><div class="page-title">I miei colori</div><div class="page-sub">Il tuo profilo neuropsicologico basato sul metodo Tailor Selling</div></div>
     <div class="colori-hero">
@@ -362,12 +358,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
 
+  <!-- SESSIONI -->
   <div class="page" id="page-sessioni">
     <div class="page-header"><div class="page-title">Sessioni</div><div class="page-sub">Le tue conversazioni con Gianluca e i tuoi appunti</div></div>
     <button class="add-btn" onclick="showModal('modal-sessione')">+ Aggiungi appunti sessione</button>
     <div id="sessioni-list"></div>
   </div>
 
+  <!-- PROGRESSI -->
   <div class="page" id="page-progressi">
     <div class="page-header"><div class="page-title">Progressi</div><div class="page-sub">Monitora la tua evoluzione in ogni sfera della vita</div></div>
     <button class="add-btn" onclick="showModal('modal-progresso')">+ Aggiungi un progresso</button>
@@ -402,26 +400,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
 
+  <!-- VITTORIE -->
   <div class="page" id="page-vittorie">
     <div class="page-header"><div class="page-title">Vittorie</div><div class="page-sub">Ogni traguardo conta — piccolo o grande</div></div>
     <button class="add-btn" onclick="showModal('modal-vittoria')">+ Aggiungi una vittoria</button>
     <div id="vittorie-list-full"></div>
   </div>
 
+  <!-- TIMELINE -->
   <div class="page" id="page-timeline">
     <div class="page-header"><div class="page-title">Timeline</div><div class="page-sub">Il tuo viaggio dall'inizio ad oggi</div></div>
-    <div id="timeline-list">
-      <div class="timeline-item">
-        <div class="timeline-dot" style="background:#EAF3DE">🚀</div>
-        <div class="timeline-content">
-          <div class="timeline-date">Inizio percorso</div>
-          <div class="timeline-title">Hai iniziato il tuo percorso su MindColor</div>
-          <div class="timeline-desc">Hai fatto il test dei 4 colori e scoperto il tuo profilo. Da qui inizia tutto.</div>
-          <span class="timeline-tag" style="background:#EAF3DE;color:#3B6D11">Punto di partenza</span>
-        </div>
-      </div>
-    </div>
+    <div id="timeline-list"></div>
   </div>
+
 </div>
 
 <!-- MODALS -->
@@ -534,12 +525,19 @@ const SUPABASE_URL = 'https://aphxfhuczkasrqvznjps.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwaHhmaHVjemthc3JxdnpuanBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTQwMzAsImV4cCI6MjA5NjU3MDAzMH0.-daz-VWrP0FCDeL6v0stsdfSOUEaVvuoc5l2gfkFnbc';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let currentUser = null;
 let currentProfile = null;
 let authMode = 'login';
 let userName = '';
 let selectedEmotions = [];
-let sfere = { business:0, relazioni:0, mente:0, salute:0, finanze:0, spiritualita:0 };
+let currentPeriodo = 1;
+let allProgressi = [];
+
+// FIX BUG 2+3: mappa globale oggetti per edit sicuro (niente apici nei parametri onclick)
+let _editMap = {};
+
+// ─── AUTH ───────────────────────────────────────────────────────────────────
 
 async function checkSession() {
   const { data: { session } } = await db.auth.getSession();
@@ -557,7 +555,7 @@ async function checkSession() {
 
 function switchTab(mode) {
   authMode = mode;
-  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (mode==='login'&&i===0)||(mode==='signup'&&i===1)));
+  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (mode === 'login' && i === 0) || (mode === 'signup' && i === 1)));
   document.getElementById('auth-name').style.display = mode === 'signup' ? 'block' : 'none';
   document.querySelector('.auth-btn').textContent = mode === 'login' ? 'Accedi' : 'Registrati';
 }
@@ -590,6 +588,8 @@ async function handleAuth() {
   }
 }
 
+// ─── ONBOARDING ──────────────────────────────────────────────────────────────
+
 function goToStep2() {
   document.getElementById('step-1').classList.remove('active');
   document.getElementById('step-2').classList.add('active');
@@ -612,21 +612,28 @@ async function saveColors() {
   loadDashboard();
 }
 
+// ─── DASHBOARD ───────────────────────────────────────────────────────────────
+
 async function loadDashboard() {
   if (!currentUser) return;
+
+  // Profilo
   const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
   if (profile) {
     currentProfile = profile;
     const nome = profile.nome || currentUser.email;
     userName = nome;
-    const iniziali = nome.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    const iniziali = nome.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     document.getElementById('hero-name').textContent = nome;
     document.getElementById('user-name').textContent = nome;
     document.getElementById('user-email').textContent = currentUser.email;
     document.getElementById('user-avatar').textContent = iniziali;
+
     const coloreEmoji = { Giallo: '🟡', Blu: '🔵', Verde: '🟢', Rosso: '🔴' };
     document.getElementById('hero-badge').textContent = (coloreEmoji[profile.colore_dominante] || '⬜') + ' ' + (profile.colore_dominante || '—');
-    ['giallo','blu','verde','rosso'].forEach(c => {
+
+    // Barre colori — home e pagina colori
+    ['giallo', 'blu', 'verde', 'rosso'].forEach(c => {
       const val = profile['pct_' + c] || 0;
       document.getElementById('pct-' + c).textContent = val + '%';
       document.getElementById('bar-' + c).style.width = val + '%';
@@ -635,59 +642,201 @@ async function loadDashboard() {
       document.getElementById('cbar-' + c).style.width = val + '%';
       document.getElementById('cpct-' + c).textContent = val + '%';
     });
+
+    // Pagina colori — nome profilo e descrizione personalizzata
     document.getElementById('colori-profilo-nome').textContent = 'Il tuo colore dominante è il ' + (profile.colore_dominante || '—');
+    const descColore = {
+      Giallo: 'Sei un Influente: entusiasta, creativo, comunicativo. Ispiri gli altri con la tua energia e visione. Il tuo percorso è imparare a focalizzarti senza disperdere le energie.',
+      Blu: 'Sei un Analitico: preciso, razionale, orientato alla qualità. Vuoi certezze prima di agire. Il tuo percorso è imparare a decidere anche in assenza di dati perfetti.',
+      Verde: 'Sei un Nobile: empatico, stabile, orientato alle relazioni. Metti gli altri al primo posto. Il tuo percorso è imparare ad affermare i tuoi bisogni senza senso di colpa.',
+      Rosso: 'Sei un Dominante: diretto, competitivo, orientato ai risultati. Vuoi vincere e controllare. Il tuo percorso è imparare ad ascoltare e collaborare senza perdere efficacia.'
+    };
+    document.getElementById('colori-profilo-desc').textContent = descColore[profile.colore_dominante] || 'Il tuo colore dominante definisce come comunichi, decidi e reagisci sotto pressione.';
+
+    // Check-in personalizzato
     const checkinQ = { Giallo: 'Ciao! Cosa ti entusiasma di più oggi?', Blu: 'Come stai ragionando oggi? Su cosa vuoi fare chiarezza?', Verde: 'Come stai nel profondo oggi? Cosa senti?', Rosso: 'Cosa vuoi conquistare oggi? Dove metti la tua energia?' };
     document.getElementById('checkin-question').textContent = checkinQ[profile.colore_dominante] || 'Come stai oggi?';
   }
 
+  // Vittorie
   const { data: vittorie } = await db.from('vittorie').select('*').eq('user_id', currentUser.id).order('data_vittoria', { ascending: false });
   if (vittorie) {
+    vittorie.forEach(v => _editMap[v.id] = v);
     document.getElementById('stat-vittorie').textContent = vittorie.length;
-    const vittorieHome = document.getElementById('vittorie-home');
-    vittorieHome.innerHTML = vittorie.slice(0,4).map(v => `<div class="win-item"><div class="win-check">✓</div><div><div class="win-text">${v.descrizione}</div><div class="win-date">${v.data_vittoria||''} · ${v.categoria||''}</div></div></div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora</div>';
-    const vittorieList = document.getElementById('vittorie-list-full');
-    vittorieList.innerHTML = vittorie.map(v => `
-      <div class="vittoria-item" style="position:relative;">
+
+    document.getElementById('vittorie-home').innerHTML = vittorie.slice(0, 4).map(v => `
+      <div class="win-item">
+        <div class="win-check">✓</div>
+        <div><div class="win-text">${escHtml(v.descrizione)}</div>
+        <div class="win-date">${v.data_vittoria || ''} · ${v.categoria || ''}</div></div>
+      </div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora</div>';
+
+    document.getElementById('vittorie-list-full').innerHTML = vittorie.map(v => `
+      <div class="vittoria-item">
         <div class="vittoria-check">✓</div>
         <div style="flex:1;">
-          <div class="vittoria-text">${v.descrizione}</div>
-          <div class="vittoria-date">${v.data_vittoria||''}</div>
-          <span class="vittoria-cat">${v.categoria||''}</span>
+          <div class="vittoria-text">${escHtml(v.descrizione)}</div>
+          <div class="vittoria-date">${v.data_vittoria || ''}</div>
+          <span class="vittoria-cat">${v.categoria || ''}</span>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0;">
-          <button onclick="editVittoria('${v.id}','${v.descrizione}','${v.categoria}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#666;">✏️</button>
+          <button onclick="editVittoria('${v.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#666;">✏️</button>
           <button onclick="deleteVittoria('${v.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#999;">🗑</button>
         </div>
       </div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna vittoria ancora</div>';
   }
 
+  // Sessioni
   const { data: sessioni } = await db.from('sessioni').select('*').eq('user_id', currentUser.id).order('data_sessione', { ascending: false });
   if (sessioni) {
+    sessioni.forEach(s => _editMap[s.id] = s);
     document.getElementById('stat-sessioni').textContent = sessioni.length;
-    const sessList = document.getElementById('sessioni-list');
-    sessList.innerHTML = sessioni.map(s => `
-      <div class="session-item" style="position:relative;">
+
+    // FIX BUG 4: streak settimane attive
+    const streak = calcolaStreak(sessioni);
+    document.getElementById('stat-sessioni-delta').textContent = streak > 0 ? streak + ' sett. consecutive' : '';
+
+    // FIX BUG 4: stato più recente dal check-in
+    const ultimaCheckin = sessioni.find(s => s.riassunto && s.riassunto.startsWith('Check-in:'));
+    if (ultimaCheckin) {
+      const emozione = ultimaCheckin.riassunto.replace('Check-in: ', '').split(',')[0].trim();
+      document.getElementById('stat-stato').textContent = emozione || '—';
+    } else {
+      document.getElementById('stat-stato').textContent = '—';
+    }
+
+    document.getElementById('sessioni-list').innerHTML = sessioni.map(s => `
+      <div class="session-item">
         <div class="session-header">
-          <span class="session-date">${s.data_sessione||''}</span>
+          <span class="session-date">${s.data_sessione || ''}</span>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="session-tag">${s.blocco_emerso||'Sessione'}</span>
-            <button onclick="editSessione('${s.id}','${s.data_sessione||''}','${(s.blocco_emerso||'').replace(/'/g,'`')}','${(s.note||'').replace(/'/g,'`')}','${(s.impegno_preso||'').replace(/'/g,'`')}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:#666;">✏️</button>
+            <span class="session-tag">${escHtml(s.blocco_emerso || 'Sessione')}</span>
+            <button onclick="editSessione('${s.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:#666;">✏️</button>
             <button onclick="deleteSessione('${s.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:#999;">🗑</button>
           </div>
         </div>
-        <div class="session-preview">${s.riassunto||s.note||'—'}</div>
-        ${s.impegno_preso ? '<div style="font-size:12px;color:#EF9F27;margin-top:6px;">→ ' + s.impegno_preso + '</div>' : ''}
+        <div class="session-preview">${escHtml(s.riassunto || s.note || '—')}</div>
+        ${s.impegno_preso ? '<div style="font-size:12px;color:#EF9F27;margin-top:6px;">→ ' + escHtml(s.impegno_preso) + '</div>' : ''}
       </div>`).join('') || '<div style="font-size:13px;color:#999">Nessuna sessione ancora</div>';
+
+    // FIX BUG 5: journey dinamica
+    aggiornaJourney(currentProfile, sessioni.length);
+
+    // Timeline dinamica
+    caricaTimeline(sessioni, vittorie || []);
+  } else {
+    aggiornaJourney(currentProfile, 0);
   }
 
-  loadProgressi();
+  // Blocchi
   const { data: blocchi } = await db.from('blocchi').select('*').eq('user_id', currentUser.id);
   const blocchiEl = document.getElementById('blocchi-list');
   if (blocchi && blocchi.length > 0) {
     const sc = { superato: 'status-done', 'in corso': 'status-progress', attivo: 'status-active' };
-    blocchiEl.innerHTML = blocchi.map(b => `<div class="block-row"><span class="block-name">${b.nome_blocco}</span><span class="block-status ${sc[b.stato?.toLowerCase()]||'status-active'}">${b.stato||'Attivo'}</span></div>`).join('');
+    blocchiEl.innerHTML = blocchi.map(b => `
+      <div class="block-row">
+        <span class="block-name">${escHtml(b.nome_blocco)}</span>
+        <span class="block-status ${sc[b.stato?.toLowerCase()] || 'status-active'}">${b.stato || 'Attivo'}</span>
+      </div>`).join('');
+  } else {
+    blocchiEl.innerHTML = '<div style="font-size:13px;color:#999">Nessun blocco ancora</div>';
   }
+
+  loadProgressi();
 }
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+
+// Escape HTML per prevenire XSS e rompere template literals
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// FIX BUG 4: calcola settimane consecutive con almeno una sessione
+function calcolaStreak(sessioni) {
+  if (!sessioni || sessioni.length === 0) return 0;
+  const settimane = new Set(sessioni.map(s => {
+    if (!s.data_sessione) return null;
+    const d = new Date(s.data_sessione);
+    const jan1 = new Date(d.getFullYear(), 0, 1);
+    return d.getFullYear() + '-W' + Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  }).filter(Boolean));
+  const sorted = [...settimane].sort().reverse();
+  let streak = 1;
+  for (let i = 1; i < sorted.length; i++) {
+    const [y1, w1] = sorted[i-1].split('-W').map(Number);
+    const [y2, w2] = sorted[i].split('-W').map(Number);
+    const diff = (y1 - y2) * 52 + (w1 - w2);
+    if (diff === 1) streak++;
+    else break;
+  }
+  return streak;
+}
+
+// FIX BUG 5: journey dinamica in base al numero di sessioni reali
+function aggiornaJourney(profile, nSessioni) {
+  const fasi = [
+    { id: 1, label: 'Inizio' },
+    { id: 2, label: 'Profilo colori' },
+    { id: 3, label: 'Blocchi identificati' },
+    { id: 4, label: 'Lavoro sui pattern' },
+    { id: 5, label: 'Autonomia' },
+    { id: 6, label: 'Mastery' }
+  ];
+  let faseAttuale = 1;
+  if (profile && profile.colore_dominante) faseAttuale = 2;
+  if (nSessioni >= 1) faseAttuale = 3;
+  if (nSessioni >= 3) faseAttuale = 4;
+  if (nSessioni >= 8) faseAttuale = 5;
+  if (nSessioni >= 15) faseAttuale = 6;
+
+  const track = document.getElementById('journey-track');
+  if (!track) return;
+  track.innerHTML = fasi.map(f => {
+    let dotClass, dotContent;
+    if (f.id < faseAttuale) { dotClass = 'step-done'; dotContent = '✓'; }
+    else if (f.id === faseAttuale) { dotClass = 'step-active'; dotContent = f.id; }
+    else { dotClass = 'step-future'; dotContent = f.id; }
+    const stepClass = f.id < faseAttuale ? 'journey-step done' : 'journey-step';
+    return `<div class="${stepClass}"><div class="step-dot ${dotClass}">${dotContent}</div><div class="step-label">${f.label}</div></div>`;
+  }).join('');
+}
+
+// Timeline dinamica: merge sessioni + vittorie in ordine cronologico
+function caricaTimeline(sessioni, vittorie) {
+  const el = document.getElementById('timeline-list');
+  if (!el) return;
+
+  const eventi = [];
+
+  // Punto di partenza fisso
+  eventi.push({ data: '2000-01-01', tipo: 'inizio', titolo: 'Inizio del percorso', desc: 'Hai fatto il test dei 4 colori e scoperto il tuo profilo. Da qui inizia tutto.', tag: 'Punto di partenza', tagColor: '#EAF3DE', tagText: '#3B6D11', icon: '🚀', bg: '#EAF3DE' });
+
+  (sessioni || []).filter(s => s.data_sessione && !s.riassunto?.startsWith('Check-in:')).forEach(s => {
+    eventi.push({ data: s.data_sessione, tipo: 'sessione', titolo: s.blocco_emerso || 'Sessione con il coach', desc: s.riassunto || s.note || '', tag: 'Sessione', tagColor: '#FAEEDA', tagText: '#854F0B', icon: '🎙', bg: '#FAEEDA' });
+  });
+
+  (vittorie || []).forEach(v => {
+    if (!v.data_vittoria) return;
+    eventi.push({ data: v.data_vittoria, tipo: 'vittoria', titolo: v.descrizione, desc: v.categoria || '', tag: 'Vittoria', tagColor: '#EAF3DE', tagText: '#3B6D11', icon: '✦', bg: '#EAF3DE' });
+  });
+
+  eventi.sort((a, b) => a.data < b.data ? -1 : 1);
+
+  el.innerHTML = eventi.map(e => `
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:${e.bg}">${e.icon}</div>
+      <div class="timeline-content">
+        <div class="timeline-date">${e.data !== '2000-01-01' ? e.data : 'Inizio percorso'}</div>
+        <div class="timeline-title">${escHtml(e.titolo)}</div>
+        ${e.desc ? '<div class="timeline-desc">' + escHtml(e.desc) + '</div>' : ''}
+        <span class="timeline-tag" style="background:${e.tagColor};color:${e.tagText}">${e.tag}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ─── NAVIGAZIONE ─────────────────────────────────────────────────────────────
 
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -696,27 +845,32 @@ function showPage(page) {
   document.getElementById('nav-' + page).classList.add('active');
 }
 
+// ─── CHECK-IN ────────────────────────────────────────────────────────────────
+
 function setCheckinMode(mode) {
-  document.querySelectorAll('.checkin-mode-btn').forEach((b,i) => b.classList.toggle('active', (mode==='scrivi'&&i===0)||(mode==='voce'&&i===1)));
+  document.querySelectorAll('.checkin-mode-btn').forEach((b, i) => b.classList.toggle('active', (mode === 'scrivi' && i === 0) || (mode === 'voce' && i === 1)));
   if (mode === 'voce') document.getElementById('checkin-input').placeholder = '🎙 Clicca e parla — trascrizione automatica in arrivo';
 }
+
 function toggleEmotion(btn, emotion) {
   btn.classList.toggle('selected');
-  if (btn.classList.contains('selected')) { selectedEmotions.push(emotion); }
-  else { selectedEmotions = selectedEmotions.filter(e => e !== emotion); }
+  if (btn.classList.contains('selected')) selectedEmotions.push(emotion);
+  else selectedEmotions = selectedEmotions.filter(e => e !== emotion);
 }
+
 async function saveCheckin() {
   const note = document.getElementById('checkin-input').value;
   if (!note && selectedEmotions.length === 0) return;
   await db.from('sessioni').insert({ user_id: currentUser.id, data_sessione: new Date().toISOString().split('T')[0], riassunto: 'Check-in: ' + selectedEmotions.join(', '), note: note, blocco_emerso: 'Check-in quotidiano', decisioni_autonome: 0 });
   document.getElementById('checkin-done').style.display = 'block';
   document.getElementById('checkin-input').value = '';
+  selectedEmotions = [];
+  document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('selected'));
   setTimeout(() => { document.getElementById('checkin-done').style.display = 'none'; }, 3000);
   loadDashboard();
 }
 
-let currentPeriodo = 1;
-let allProgressi = [];
+// ─── PROGRESSI ───────────────────────────────────────────────────────────────
 
 function setPeriodo(mesi) {
   currentPeriodo = mesi;
@@ -725,14 +879,14 @@ function setPeriodo(mesi) {
 }
 
 function calcolaSfere() {
-  const sfereList = ['business','relazioni','mente','salute','finanze','spiritualita'];
+  const sfereList = ['business', 'relazioni', 'mente', 'salute', 'finanze', 'spiritualita'];
   const cutoff = new Date();
   cutoff.setMonth(cutoff.getMonth() - currentPeriodo);
   const filtered = allProgressi.filter(p => p.data && new Date(p.data) >= cutoff);
   const counts = {};
   sfereList.forEach(s => counts[s] = 0);
   filtered.forEach(p => { if (counts[p.sfera] !== undefined) counts[p.sfera]++; });
-  const total = Object.values(counts).reduce((a,b) => a+b, 0);
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
   sfereList.forEach(s => {
     const pct = total > 0 ? Math.round((counts[s] / total) * 100) : 0;
     const el = document.getElementById('sfera-' + s);
@@ -743,23 +897,49 @@ function calcolaSfere() {
     if (cnt) cnt.textContent = counts[s] + ' attività';
   });
   if (total > 0) {
-    const sorted = [...sfereList].sort((a,b) => counts[b] - counts[a]);
+    const sorted = [...sfereList].sort((a, b) => counts[b] - counts[a]);
     const top = sorted[0];
-    const bottom = sorted[sorted.length-1];
-    const sfereNomi = { business:'Business', relazioni:'Relazioni', mente:'Mente', salute:'Salute', finanze:'Finanze', spiritualita:'Spiritualità' };
-    let periodoTxt = currentPeriodo === 1 ? "Nell'ultimo mese" : currentPeriodo < 12 ? 'Negli ultimi ' + currentPeriodo + ' mesi' : currentPeriodo === 12 ? "Nell'ultimo anno" : 'Negli ultimi ' + Math.round(currentPeriodo/12) + ' anni';
-    let insight = '<strong>' + periodoTxt + '</strong> hai dedicato più energia a <strong>' + sfereNomi[top] + '</strong> (' + Math.round(counts[top]/total*100) + '% delle attività).';
-    if (counts[bottom] === 0) {
-      insight += ' <strong>' + sfereNomi[bottom] + '</strong> non ha ricevuto nessuna attenzione.';
-    } else {
-      insight += ' <strong>' + sfereNomi[bottom] + '</strong> ha ricevuto il minor focus (' + Math.round(counts[bottom]/total*100) + '%).';
-    }
+    const bottom = sorted[sorted.length - 1];
+    const sfereNomi = { business: 'Business', relazioni: 'Relazioni', mente: 'Mente', salute: 'Salute', finanze: 'Finanze', spiritualita: 'Spiritualità' };
+    let periodoTxt = currentPeriodo === 1 ? "Nell'ultimo mese" : currentPeriodo < 12 ? 'Negli ultimi ' + currentPeriodo + ' mesi' : currentPeriodo === 12 ? "Nell'ultimo anno" : 'Negli ultimi ' + Math.round(currentPeriodo / 12) + ' anni';
+    let insight = '<strong>' + periodoTxt + '</strong> hai dedicato più energia a <strong>' + sfereNomi[top] + '</strong> (' + Math.round(counts[top] / total * 100) + '% delle attività).';
+    if (counts[bottom] === 0) insight += ' <strong>' + sfereNomi[bottom] + '</strong> non ha ricevuto nessuna attenzione.';
+    else insight += ' <strong>' + sfereNomi[bottom] + '</strong> ha ricevuto il minor focus (' + Math.round(counts[bottom] / total * 100) + '%).';
     document.getElementById('insight-text').innerHTML = insight;
     document.getElementById('insight-card').style.display = 'block';
   } else {
     document.getElementById('insight-card').style.display = 'none';
   }
 }
+
+async function loadProgressi() {
+  const { data } = await db.from('progressi').select('*').eq('user_id', currentUser.id).order('data', { ascending: false });
+  allProgressi = data || [];
+  data && data.forEach(p => _editMap[p.id] = p);
+  calcolaSfere();
+  const list = document.getElementById('progressi-list');
+  if (data && data.length > 0) {
+    const sfereEmoji = { business: '💼', relazioni: '❤️', mente: '🧠', salute: '💪', finanze: '💰', spiritualita: '✨' };
+    list.innerHTML = data.map(p => `
+      <div class="vittoria-item">
+        <div class="vittoria-check">${sfereEmoji[p.sfera] || '⭐'}</div>
+        <div style="flex:1;">
+          <div class="vittoria-text">${escHtml(p.titolo)}</div>
+          <div class="vittoria-date">${p.data || ''}</div>
+          ${p.note ? '<div style="font-size:12px;color:#666;margin-top:4px">' + escHtml(p.note) + '</div>' : ''}
+          <span class="vittoria-cat">${p.sfera || ''}</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="editProgresso('${p.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#666;">✏️</button>
+          <button onclick="deleteProgresso('${p.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#999;">🗑</button>
+        </div>
+      </div>`).join('');
+  } else {
+    list.innerHTML = '<div style="font-size:13px;color:#999">Nessun progresso ancora</div>';
+  }
+}
+
+// ─── MODALS ──────────────────────────────────────────────────────────────────
 
 function showModal(id) { document.getElementById(id).classList.add('visible'); }
 function hideModal(id) { document.getElementById(id).classList.remove('visible'); }
@@ -789,30 +969,6 @@ async function saveProgresso() {
   loadProgressi();
 }
 
-async function loadProgressi() {
-  const { data } = await db.from('progressi').select('*').eq('user_id', currentUser.id).order('data', { ascending: false });
-  allProgressi = data || [];
-  calcolaSfere();
-  const list = document.getElementById('progressi-list');
-  if (data && data.length > 0) {
-    const sfereEmoji = { business:'💼', relazioni:'❤️', mente:'🧠', salute:'💪', finanze:'💰', spiritualita:'✨' };
-    list.innerHTML = data.map(p => `
-      <div class="vittoria-item">
-        <div class="vittoria-check">${sfereEmoji[p.sfera]||'⭐'}</div>
-        <div style="flex:1;">
-          <div class="vittoria-text">${p.titolo}</div>
-          <div class="vittoria-date">${p.data||''}</div>
-          ${p.note ? '<div style="font-size:12px;color:#666;margin-top:4px">'+p.note+'</div>' : ''}
-          <span class="vittoria-cat">${p.sfera||''}</span>
-        </div>
-        <button onclick="editProgresso('${p.id}','${p.sfera||''}','${(p.titolo||'').replace(/'/g,'`')}','${(p.note||'').replace(/'/g,'`')}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#666;flex-shrink:0;">✏️</button>
-        <button onclick="deleteProgresso('${p.id}')" style="background:none;border:0.5px solid #e8e8e8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:#999;flex-shrink:0;">🗑</button>
-      </div>`).join('');
-  } else {
-    list.innerHTML = '<div style="font-size:13px;color:#999">Nessun progresso ancora</div>';
-  }
-}
-
 async function saveVittoria() {
   const desc = document.getElementById('vitt-desc').value;
   const cat = document.getElementById('vitt-cat').value;
@@ -820,10 +976,96 @@ async function saveVittoria() {
   const today = new Date().toISOString().split('T')[0];
   await db.from('vittorie').insert({ user_id: currentUser.id, descrizione: desc, data_vittoria: today, categoria: cat });
   hideModal('modal-vittoria');
+  document.getElementById('vitt-desc').value = '';
   loadDashboard();
 }
 
+// ─── EDIT — FIX BUG 2+3: usa _editMap, nessun parametro inline ──────────────
+
+function editVittoria(id) {
+  const v = _editMap[id];
+  if (!v) return;
+  document.getElementById('edit-vitt-id').value = v.id;
+  document.getElementById('edit-vitt-desc').value = v.descrizione || '';
+  document.getElementById('edit-vitt-cat').value = v.categoria || 'Altro';
+  showModal('modal-edit-vittoria');
+}
+
+async function updateVittoria() {
+  const id = document.getElementById('edit-vitt-id').value;
+  const desc = document.getElementById('edit-vitt-desc').value;
+  const cat = document.getElementById('edit-vitt-cat').value;
+  if (!desc) return;
+  await db.from('vittorie').update({ descrizione: desc, categoria: cat }).eq('id', id);
+  hideModal('modal-edit-vittoria');
+  loadDashboard();
+}
+
+async function deleteVittoria(id) {
+  if (!confirm('Eliminare questa vittoria?')) return;
+  await db.from('vittorie').delete().eq('id', id);
+  loadDashboard();
+}
+
+function editSessione(id) {
+  const s = _editMap[id];
+  if (!s) return;
+  document.getElementById('edit-sess-id').value = s.id;
+  document.getElementById('edit-sess-data').value = s.data_sessione || '';
+  document.getElementById('edit-sess-blocco').value = s.blocco_emerso || '';
+  document.getElementById('edit-sess-note').value = s.note || '';
+  document.getElementById('edit-sess-impegno').value = s.impegno_preso || '';
+  showModal('modal-edit-sessione');
+}
+
+async function updateSessione() {
+  const id = document.getElementById('edit-sess-id').value;
+  const data = document.getElementById('edit-sess-data').value;
+  const blocco = document.getElementById('edit-sess-blocco').value;
+  const note = document.getElementById('edit-sess-note').value;
+  const impegno = document.getElementById('edit-sess-impegno').value;
+  await db.from('sessioni').update({ data_sessione: data, blocco_emerso: blocco, note, impegno_preso: impegno }).eq('id', id);
+  hideModal('modal-edit-sessione');
+  loadDashboard();
+}
+
+async function deleteSessione(id) {
+  if (!confirm('Eliminare questa sessione?')) return;
+  await db.from('sessioni').delete().eq('id', id);
+  loadDashboard();
+}
+
+function editProgresso(id) {
+  const p = _editMap[id];
+  if (!p) return;
+  document.getElementById('edit-prog-id').value = p.id;
+  document.getElementById('edit-prog-sfera').value = p.sfera || 'business';
+  document.getElementById('edit-prog-titolo').value = p.titolo || '';
+  document.getElementById('edit-prog-note').value = p.note || '';
+  showModal('modal-edit-progresso');
+}
+
+async function updateProgresso() {
+  const id = document.getElementById('edit-prog-id').value;
+  const sfera = document.getElementById('edit-prog-sfera').value;
+  const titolo = document.getElementById('edit-prog-titolo').value;
+  const note = document.getElementById('edit-prog-note').value;
+  if (!titolo) return;
+  await db.from('progressi').update({ sfera, titolo, note }).eq('id', id);
+  hideModal('modal-edit-progresso');
+  loadProgressi();
+}
+
+async function deleteProgresso(id) {
+  if (!confirm('Eliminare questo progresso?')) return;
+  await db.from('progressi').delete().eq('id', id);
+  loadProgressi();
+}
+
+// ─── CALL ────────────────────────────────────────────────────────────────────
+
 function showCall() { document.getElementById('call-page').classList.add('visible'); }
+
 function hideCall() {
   document.getElementById('call-page').classList.remove('visible');
   document.getElementById('tavus-container').classList.remove('visible');
@@ -840,15 +1082,16 @@ async function startCall() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_name: userName,
-            user_id: currentUser ? currentUser.id : "",
+        user_id: currentUser ? currentUser.id : '',
         colore_dominante: currentProfile ? currentProfile.colore_dominante : '',
         pct_giallo: currentProfile ? currentProfile.pct_giallo : 0,
         pct_blu: currentProfile ? currentProfile.pct_blu : 0,
         pct_verde: currentProfile ? currentProfile.pct_verde : 0,
         pct_rosso: currentProfile ? currentProfile.pct_rosso : 0,
-        ultimo_blocco: '',
-        ultimo_impegno: '',
-        fase_percorso: 'Inizio'
+        // FIX BUG 1: passare valori reali invece di stringhe vuote hardcoded
+        ultimo_blocco: currentProfile ? (currentProfile.ultimo_blocco || '') : '',
+        ultimo_impegno: currentProfile ? (currentProfile.ultimo_impegno || '') : '',
+        fase_percorso: currentProfile ? (currentProfile.fase_percorso || 'Inizio') : 'Inizio'
       })
     });
     const data = await response.json();
@@ -870,11 +1113,11 @@ async function startCall() {
 
 function saveSession() {
   if (!currentUser || !window.currentConversationId) return;
-  fetch("/api/save-session", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: currentUser.id, conversation_id: window.currentConversationId, transcript: "" })
-  }).catch(e => console.log("Save session error:", e));
+  fetch('/api/save-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: currentUser.id, conversation_id: window.currentConversationId, transcript: '' })
+  }).catch(e => console.log('Save session error:', e));
 }
 
 function endCall() {
@@ -882,78 +1125,11 @@ function endCall() {
   hideCall();
   document.querySelector('.call-btn-start').textContent = '▶ Inizia sessione';
   document.querySelector('.call-btn-start').disabled = false;
+  setTimeout(() => loadDashboard(), 2000);
 }
 
-function editVittoria(id, desc, cat) {
-  document.getElementById('edit-vitt-id').value = id;
-  document.getElementById('edit-vitt-desc').value = desc;
-  document.getElementById('edit-vitt-cat').value = cat;
-  showModal('modal-edit-vittoria');
-}
-async function updateVittoria() {
-  const id = document.getElementById('edit-vitt-id').value;
-  const desc = document.getElementById('edit-vitt-desc').value;
-  const cat = document.getElementById('edit-vitt-cat').value;
-  if (!desc) return;
-  await db.from('vittorie').update({ descrizione: desc, categoria: cat }).eq('id', id);
-  hideModal('modal-edit-vittoria');
-  loadDashboard();
-}
-async function deleteVittoria(id) {
-  if (!confirm('Eliminare questa vittoria?')) return;
-  await db.from('vittorie').delete().eq('id', id);
-  loadDashboard();
-}
-
-function editSessione(id, data, blocco, note, impegno) {
-  document.getElementById('edit-sess-id').value = id;
-  document.getElementById('edit-sess-data').value = data;
-  document.getElementById('edit-sess-blocco').value = blocco;
-  document.getElementById('edit-sess-note').value = note;
-  document.getElementById('edit-sess-impegno').value = impegno;
-  showModal('modal-edit-sessione');
-}
-async function updateSessione() {
-  const id = document.getElementById('edit-sess-id').value;
-  const data = document.getElementById('edit-sess-data').value;
-  const blocco = document.getElementById('edit-sess-blocco').value;
-  const note = document.getElementById('edit-sess-note').value;
-  const impegno = document.getElementById('edit-sess-impegno').value;
-  await db.from('sessioni').update({ data_sessione: data, blocco_emerso: blocco, note, impegno_preso: impegno }).eq('id', id);
-  hideModal('modal-edit-sessione');
-  loadDashboard();
-}
-async function deleteSessione(id) {
-  if (!confirm('Eliminare questa sessione?')) return;
-  await db.from('sessioni').delete().eq('id', id);
-  loadDashboard();
-}
-
-function editProgresso(id, sfera, titolo, note) {
-  document.getElementById('edit-prog-id').value = id;
-  document.getElementById('edit-prog-sfera').value = sfera;
-  document.getElementById('edit-prog-titolo').value = titolo;
-  document.getElementById('edit-prog-note').value = note;
-  showModal('modal-edit-progresso');
-}
-async function updateProgresso() {
-  const id = document.getElementById('edit-prog-id').value;
-  const sfera = document.getElementById('edit-prog-sfera').value;
-  const titolo = document.getElementById('edit-prog-titolo').value;
-  const note = document.getElementById('edit-prog-note').value;
-  if (!titolo) return;
-  await db.from('progressi').update({ sfera, titolo, note }).eq('id', id);
-  hideModal('modal-edit-progresso');
-  loadProgressi();
-}
-async function deleteProgresso(id) {
-  if (!confirm('Eliminare questo progresso?')) return;
-  await db.from('progressi').delete().eq('id', id);
-  loadProgressi();
-}
-
+// ─── INIT ────────────────────────────────────────────────────────────────────
 checkSession();
 </script>
 </body>
 </html>
-
