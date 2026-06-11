@@ -840,6 +840,7 @@ async function startCall() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_name: userName,
+            user_id: currentUser ? currentUser.id : "",
         colore_dominante: currentProfile ? currentProfile.colore_dominante : '',
         pct_giallo: currentProfile ? currentProfile.pct_giallo : 0,
         pct_blu: currentProfile ? currentProfile.pct_blu : 0,
