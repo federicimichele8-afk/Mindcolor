@@ -63,6 +63,8 @@ module.exports = async function handler(req, res) {
       (knowledge ? "\nCONTENUTI RILEVANTI DAL METODO DI GIANLUCA:\n" + knowledge : "") +
       "\n\nParla SEMPRE e SOLO in italiano. Mai in inglese.";
 
+    const callbackUrl = "https://mindcolor-cipb.vercel.app/api/save-session?user_id=" + encodeURIComponent(user_id);
+
     const tavusResponse = await fetch("https://tavusapi.com/v2/conversations", {
       method: "POST",
       headers: { "x-api-key": process.env.TAVUS_API_KEY, "Content-Type": "application/json" },
@@ -71,8 +73,7 @@ module.exports = async function handler(req, res) {
         persona_id: "p327cfdeb718",
         conversation_name: "Sessione MindColor - " + user_name,
         conversational_context: context,
-        callback_url: "https://mindcolor-cipb.vercel.app/api/save-session",
-        properties: { user_id: user_id }
+        callback_url: callbackUrl
       })
     });
 
