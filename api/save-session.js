@@ -9,9 +9,22 @@ module.exports = async function handler(req, res) {
 
   try {
     const b = req.body || {};
-    const user_id = b.user_id || "";
-    const conversation_id = b.conversation_id || "";
-    const transcript = b.transcript || "";
+
+    const conversation_id = b.conversation_id || b.data?.conversation_id || "";
+    const user_id = b.properties?.user_id || b.user_id || "";
+
+    let transcript = "";
+    if (b.transcript) {
+      transcript = b.transcript;
+    } else if (b.data && b.data.transcript) {
+      transcript = b.data.transcript;
+    } else if (b.conversation && b.conversation.transcript) {
+      transcript = b.conversation.transcript;
+    }
+
+    if (!transcript || transcript.length < 10) {
+      return res.status(200).json({ success: true, message: "Nessuna trascrizione disponibile" });
+    }
 
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -27,7 +40,7 @@ module.exports = async function handler(req, res) {
         max_tokens: 500,
         messages: [{
           role: "user",
-          content: "Analizza questa trascrizione di una sessione di coaching e restituisci SOLO un JSON con questi campi: summary (riassunto in 2-3 frasi), blocco_emerso (il blocco principale emerso), impegno_preso (l azione concreta che si e impegnato a fare), insight (la realizzazione piu importante). Trascrizione: " + transcript
+          content: "Analizza questa trascrizione di una sessione di coaching. Restituisci SOLO un oggetto JSON valido senza markdown con questi campi: summary (stringa, riassunto in 2-3 frasi), blocco_emerso (stringa, il blocco principale emerso), impegno_preso (stringa, azione concreta entro 24 ore), insight (stringa, realizzazione piu importante). Trascrizione: " + transcript.substring(0, 3000)
         }]
       })
     });
@@ -51,10 +64,29 @@ module.exports = async function handler(req, res) {
       insight: parsed.insight || ""
     });
 
-    await supabase.from("profiles").update({
-      ultimo_blocco: parsed.blocco_emerso || "",
-      ultimo_impegno: parsed.impegno_preso || ""
-    }).eq("id", user_id);
+    if (user_id) {
+      await supabase.from("profiles").update({
+        ultimo_blocco: parsed.blocco_emerso || "",
+        ultimo_impegno: parsed.impegno_preso || ""
+      }).eq("id", user_id);
+    }
+
+    const { Pinecone: VoyageClient } = require("@supabase/supabase-js");
+    try {
+      const voyageRes = await fetch("https://api.voyageai.com/v1/embeddings", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + process.env.VOYAGE_API_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "voyage-3", input: [transcript.substring(0, 2000)], input_type: "document" })
+      });
+      const voyageData = await voyageRes.json();
+      if (voyageData.data) {
+        await supabase.from("knowledge_base").insert({
+          content: "Sessione coaching - " + (parsed.summary || ""),
+          embedding: voyageData.data[0].embedding,
+          metadata: { source: "session", user_id, conversation_id, blocco: parsed.blocco_emerso, insight: parsed.insight }
+        });
+      }
+    } catch(e) { console.log("Embedding sessione fallito:", e.message); }
 
     return res.status(200).json({ success: true, data: parsed });
 
