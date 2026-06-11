@@ -861,7 +861,7 @@ function toggleEmotion(btn, emotion) {
 async function saveCheckin() {
   const note = document.getElementById('checkin-input').value;
   if (!note && selectedEmotions.length === 0) return;
-  await db.from('sessioni').insert({ user_id: currentUser.id, data_sessione: new Date().toISOString().split('T')[0], riassunto: 'Check-in: ' + selectedEmotions.join(', '), note: note, blocco_emerso: 'Check-in quotidiano', decisioni_autonome: 0 });
+  await db.from('sessioni').insert({ user_id: currentUser.id, data_sessione: new Date().toISOString().split('T')[0], riassunto: 'Check-in: ' + selectedEmotions.join(', '), note: note, blocco_emerso: 'Check-in quotidiano' });
   document.getElementById('checkin-done').style.display = 'block';
   document.getElementById('checkin-input').value = '';
   selectedEmotions = [];
