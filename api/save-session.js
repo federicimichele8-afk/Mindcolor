@@ -1,5 +1,43 @@
 const { createClient } = require("@supabase/supabase-js");
 
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function getTranscriptFromTavus(conversation_id) {
+  const maxTentativi = 4;
+  const attese = [10000, 30000, 60000, 120000]; // 10s, 30s, 1min, 2min
+
+  for (let i = 0; i < maxTentativi; i++) {
+    console.log("Tentativo " + (i + 1) + " — attendo " + attese[i] / 1000 + "s...");
+    await sleep(attese[i]);
+    try {
+      const tavusRes = await fetch("https://tavusapi.com/v2/conversations/" + conversation_id, {
+        method: "GET",
+        headers: {
+          "x-api-key": process.env.TAVUS_API_KEY,
+          "Content-Type": "application/json"
+        }
+      });
+      const tavusData = await tavusRes.json();
+      console.log("Tavus conversation status:", tavusData.status);
+
+      const t =
+        tavusData.transcript ||
+        tavusData.properties?.transcript ||
+        tavusData.properties?.analysis ||
+        tavusData.data?.transcript ||
+        "";
+
+      if (t && t.length > 10) {
+        console.log("Trascrizione recuperata! Lunghezza:", t.length);
+        return t;
+      }
+    } catch(e) {
+      console.log("Errore fetch Tavus:", e.message);
+    }
+  }
+  return "";
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -18,9 +56,17 @@ module.exports = async function handler(req, res) {
     else if (b.data?.transcript) transcript = b.data.transcript;
 
     console.log("user_id:", user_id);
-    console.log("transcript length:", transcript.length);
+    console.log("conversation_id:", conversation_id);
+    console.log("transcript length iniziale:", transcript.length);
+
+    // Se vuota, recupera da Tavus API con retry
+    if ((!transcript || transcript.length < 10) && conversation_id) {
+      console.log("Trascrizione vuota — tento recupero da Tavus API...");
+      transcript = await getTranscriptFromTavus(conversation_id);
+    }
 
     if (!transcript || transcript.length < 10) {
+      console.log("Nessuna trascrizione disponibile dopo tutti i tentativi");
       return res.status(200).json({ success: true, message: "Nessuna trascrizione disponibile" });
     }
 
@@ -108,7 +154,6 @@ Trascrizione: ${transcript.substring(0, 3500)}`
 
     // ── 4. AGGIORNA PROFILO — blocco, impegno, fase_percorso ─────────────────
     if (user_id) {
-      // Conta sessioni per aggiornare fase_percorso
       const { count: nSessioni } = await supabase
         .from("sessioni")
         .select("*", { count: "exact", head: true })
@@ -175,7 +220,6 @@ Trascrizione: ${transcript.substring(0, 3500)}`
     }
 
     // ── 8. EVOLUZIONE COLORI ─────────────────────────────────────────────────
-    // Aggiorna le percentuali in base ai pattern comportamentali emersi
     if (user_id) {
       const { data: profile } = await supabase
         .from("profiles")
@@ -185,23 +229,20 @@ Trascrizione: ${transcript.substring(0, 3500)}`
 
       if (profile) {
         const delta = parsed.pattern_colori;
-        // Applica delta con peso leggero (max ±2 punti per sessione)
         const clamp = (v) => Math.max(0, Math.min(100, v));
         let g = clamp((profile.pct_giallo || 0) + (delta.giallo || 0));
         let b = clamp((profile.pct_blu || 0) + (delta.blu || 0));
         let v = clamp((profile.pct_verde || 0) + (delta.verde || 0));
         let r = clamp((profile.pct_rosso || 0) + (delta.rosso || 0));
 
-        // Normalizza a 100 mantenendo le proporzioni
         const total = g + b + v + r;
         if (total > 0 && total !== 100) {
           g = Math.round((g / total) * 100);
           b = Math.round((b / total) * 100);
           v = Math.round((v / total) * 100);
-          r = 100 - g - b - v; // l'ultimo prende il residuo per arrivare esatto a 100
+          r = 100 - g - b - v;
         }
 
-        // Colore dominante aggiornato
         const colori = [
           { nome: "Giallo", val: g },
           { nome: "Blu", val: b },
