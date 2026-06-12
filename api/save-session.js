@@ -294,6 +294,25 @@ Trascrizione: ${transcript.substring(0, 3500)}`
     } catch(e) {
       console.log("Embedding sessione fallito:", e.message);
     }
+// ── 10. NOTIFICA MAKE.COM ─────────────────────────────────────────────────
+try {
+  await fetch('https://hook.eu1.make.com/a1k58n379bc9pxerznlr128l1u4ht6a7', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user_id,
+      summary: parsed.summary || '',
+      blocco_emerso: parsed.blocco_emerso || '',
+      impegno_preso: parsed.impegno_preso || '',
+      insight: parsed.insight || '',
+      vittorie: parsed.vittorie || [],
+      data_sessione: today
+    })
+  });
+  console.log('Make.com notificato');
+} catch(e) {
+  console.log('Make.com notifica fallita:', e.message);
+}
 
     return res.status(200).json({ success: true, data: parsed });
 
