@@ -1475,34 +1475,6 @@ async function loadAdmin() {
 
 
 checkSession();
-const ADMIN_EMAIL = 'federicimichele8@gmail.com';
-function checkAdmin() {
-  if (currentUser && currentUser.email === ADMIN_EMAIL) {
-    var adminNav = document.getElementById('nav-admin');
-    if (adminNav) adminNav.style.display = 'flex';
-  }
-}
-async function loadAdmin() {
-  if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
-  const { data: profiles } = await db.from('profiles').select('*').order('created_at', { ascending: false });
-  const { data: allSessioni } = await db.from('sessioni').select('*').order('data_sessione', { ascending: false });
-  const { data: allVittorie } = await db.from('vittorie').select('*');
-  if (!profiles) return;
-  document.getElementById('admin-tot-utenti').textContent = profiles.length;
-  document.getElementById('admin-tot-sessioni').textContent = (allSessioni || []).filter(s => !s.riassunto?.startsWith('Check-in:')).length;
-  document.getElementById('admin-tot-vittorie').textContent = (allVittorie || []).length;
-  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
-  const utentiAttivi = new Set((allSessioni || []).filter(s => s.data_sessione && new Date(s.data_sessione) >= cutoff).map(s => s.user_id));
-  document.getElementById('admin-utenti-attivi').textContent = utentiAttivi.size;
-  const sessioniPerUtente = {}; const ultimaSessionePerUtente = {};
-  (allSessioni || []).forEach(s => { if (!sessioniPerUtente[s.user_id]) sessioniPerUtente[s.user_id] = 0; if (!s.riassunto?.startsWith('Check-in:')) sessioniPerUtente[s.user_id]++; if (!ultimaSessionePerUtente[s.user_id]) ultimaSessionePerUtente[s.user_id] = s.data_sessione; });
-  const coloreBadge = { Giallo:'admin-badge-giallo', Blu:'admin-badge-blu', Verde:'admin-badge-verde', Rosso:'admin-badge-rosso' };
-  const coloreEmoji = { Giallo:'🟡', Blu:'🔵', Verde:'🟢', Rosso:'🔴' };
-  const profileMap = {}; profiles.forEach(p => profileMap[p.id] = p);
-  document.getElementById('admin-users-list').innerHTML = profiles.map(p => { const iniziali = (p.nome||p.email||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2); const nS = sessioniPerUtente[p.id]||0; const ul = ultimaSessionePerUtente[p.id]||'—'; const bc = coloreBadge[p.colore_dominante]||'admin-badge-giallo'; const av = p.avatar_url ? '<img src="'+p.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' : iniziali; return '<div class="admin-user-row"><div class="admin-user-avatar">'+av+'</div><div class="admin-user-info"><div class="admin-user-name">'+escHtml(p.nome||'—')+'</div><div class="admin-user-email">'+escHtml(p.email||'')+'</div></div><span class="admin-color-badge '+bc+'">'+(coloreEmoji[p.colore_dominante]||'⬜')+' '+(p.colore_dominante||'—')+'</span><div class="admin-user-stats"><div class="admin-user-stat"><div class="admin-user-stat-value">'+nS+'</div><div class="admin-user-stat-label">Sessioni</div></div><div class="admin-user-stat"><div class="admin-user-stat-value" style="font-size:12px;color:#999;">'+ul+'</div><div class="admin-user-stat-label">Ultima</div></div></div></div>'; }).join('')||'<div style="font-size:13px;color:#999">Nessun utente</div>';
-  const ultS = (allSessioni||[]).filter(s=>!s.riassunto?.startsWith('Check-in:')).slice(0,10);
-  document.getElementById('admin-sessioni-list').innerHTML = ultS.map(s => { const p = profileMap[s.user_id]||{}; return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid #f0f0f0;"><div style="font-size:13px;color:#999;width:90px;flex-shrink:0;">'+(s.data_sessione||'—')+'</div><div style="font-size:13px;font-weight:500;color:#333;width:120px;flex-shrink:0;">'+escHtml(p.nome||'—')+'</div><div style="font-size:13px;color:#666;flex:1;">'+escHtml(s.blocco_emerso||s.riassunto||'—')+'</div></div>'; }).join('')||'<div style="font-size:13px;color:#999">Nessuna sessione</div>';
-}
 </script>
 </body>
 </html>
