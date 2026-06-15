@@ -1247,6 +1247,83 @@ function endCall() {
   setTimeout(() => loadDashboard(), 2000);
 }
 
+// IMPOSTAZIONI
+async function loadImpostazioni() {
+  if (!currentProfile) return;
+  var p = currentProfile;
+  var nomeEl = document.getElementById('settings-nome');
+  var emailEl = document.getElementById('settings-email');
+  var telefonoEl = document.getElementById('settings-telefono');
+  if (nomeEl) nomeEl.value = p.nome || '';
+  if (emailEl) emailEl.value = currentUser ? currentUser.email : '';
+  if (telefonoEl) telefonoEl.value = p.telefono || '';
+  ['giallo','blu','verde','rosso'].forEach(function(c) {
+    var el = document.getElementById('set-pct-' + c);
+    if (el) el.textContent = (p['pct_' + c] || 0) + '%';
+  });
+  var avatarEl = document.getElementById('avatar-large-preview');
+  var avatarSidebar = document.getElementById('user-avatar');
+  if (p.avatar_url) {
+    if (avatarEl) avatarEl.innerHTML = '<img src="' + p.avatar_url + '" style="width:100%;height:100%;object-fit:cover;" alt="avatar">';
+    if (avatarSidebar) avatarSidebar.innerHTML = '<img src="' + p.avatar_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="avatar">';
+  } else {
+    var nome = p.nome || (currentUser ? currentUser.email : '?');
+    var iniziali = nome.split(' ').map(function(n){return n[0];}).join('').toUpperCase().slice(0,2);
+    if (avatarEl) avatarEl.textContent = iniziali;
+  }
+}
+
+async function handleAvatarUpload(input) {
+  var file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { alert('Immagine troppo grande. Max 2MB.'); return; }
+  var avatarEl = document.getElementById('avatar-large-preview');
+  if (avatarEl) avatarEl.innerHTML = '<div style="font-size:11px;color:#EF9F27;text-align:center;">Caricamento...</div>';
+  try {
+    var ext = file.name.split('.').pop();
+    var path = currentUser.id + '/avatar.' + ext;
+    var uploadResult = await db.storage.from('avatars').upload(path, file, { upsert: true });
+    if (uploadResult.error) throw uploadResult.error;
+    var urlData = db.storage.from('avatars').getPublicUrl(path);
+    var publicUrl = urlData.data.publicUrl + '?t=' + Date.now();
+    await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id);
+    currentProfile.avatar_url = publicUrl;
+    if (avatarEl) avatarEl.innerHTML = '<img src="' + publicUrl + '" style="width:100%;height:100%;object-fit:cover;" alt="avatar">';
+    var avatarSidebar = document.getElementById('user-avatar');
+    if (avatarSidebar) avatarSidebar.innerHTML = '<img src="' + publicUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="avatar">';
+  } catch(e) {
+    alert('Errore upload: ' + e.message);
+    var iniziali2 = (currentProfile.nome || currentUser.email).split(' ').map(function(n){return n[0];}).join('').toUpperCase().slice(0,2);
+    if (avatarEl) avatarEl.textContent = iniziali2;
+  }
+}
+
+async function saveImpostazioni() {
+  var nomeEl = document.getElementById('settings-nome');
+  var telefonoEl = document.getElementById('settings-telefono');
+  var nome = nomeEl ? nomeEl.value.trim() : '';
+  var telefono = telefonoEl ? telefonoEl.value.trim() : '';
+  if (!nome) { alert('Inserisci un nome'); return; }
+  var result = await db.from('profiles').update({ nome: nome, telefono: telefono }).eq('id', currentUser.id);
+  if (result.error) { alert('Errore: ' + result.error.message); return; }
+  currentProfile.nome = nome;
+  currentProfile.telefono = telefono;
+  userName = nome;
+  var heroName = document.getElementById('hero-name');
+  var userNameEl = document.getElementById('user-name');
+  if (heroName) heroName.textContent = nome;
+  if (userNameEl) userNameEl.textContent = nome;
+  var savedEl = document.getElementById('settings-saved');
+  if (savedEl) { savedEl.style.display = 'block'; setTimeout(function(){ savedEl.style.display = 'none'; }, 3000); }
+}
+
+async function handleLogout() {
+  if (!confirm('Vuoi disconnetterti?')) return;
+  await db.auth.signOut();
+  location.reload();
+}
+
+
 checkSession();
 </script>
 </body>
