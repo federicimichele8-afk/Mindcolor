@@ -231,6 +231,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .logout-btn:hover { border-color: #E24B4A; color: #E24B4A; }
 .settings-save-bar { position: sticky; bottom: 0; background: #fff; border-top: 0.5px solid #e8e8e8; padding: 1rem 0; margin-top: 1rem; display: none; }
 .settings-save-bar.visible { display: flex; gap: 10px; align-items: center; }
+
+.admin-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+.admin-stat-card { background: #fff; border: 0.5px solid #e8e8e8; border-radius: 14px; padding: 1.25rem; }
+.admin-stat-value { font-size: 32px; font-weight: 500; color: #333; }
+.admin-stat-label { font-size: 12px; color: #999; margin-top: 4px; }
+.admin-user-row { display: flex; align-items: center; gap: 12px; padding: 12px; border: 0.5px solid #e8e8e8; border-radius: 12px; margin-bottom: 8px; background: #fff; }
+.admin-user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #EF9F27; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 500; flex-shrink: 0; overflow: hidden; }
+.admin-user-info { flex: 1; }
+.admin-user-name { font-size: 14px; font-weight: 500; color: #333; }
+.admin-user-email { font-size: 11px; color: #999; margin-top: 2px; }
+.admin-user-stats { display: flex; gap: 16px; }
+.admin-user-stat { text-align: center; }
+.admin-user-stat-value { font-size: 16px; font-weight: 500; color: #333; }
+.admin-user-stat-label { font-size: 10px; color: #999; }
+.admin-color-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.admin-badge-giallo { background: #FAEEDA; color: #854F0B; }
+.admin-badge-blu { background: #E6F1FB; color: #185FA5; }
+.admin-badge-verde { background: #EAF3DE; color: #3B6D11; }
+.admin-badge-rosso { background: #FCEBEB; color: #A32D2D; }
 </style>
 </head>
 <body>
@@ -290,6 +309,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <button class="nav-item" id="nav-progressi" onclick="showPage('progressi')"><span class="nav-icon">↗</span> Progressi</button>
   <button class="nav-item" id="nav-vittorie" onclick="showPage('vittorie')"><span class="nav-icon">✦</span> Vittorie</button>
   <button class="nav-item" id="nav-timeline" onclick="showPage('timeline')"><span class="nav-icon">◷</span> Timeline</button>
+  <button class="nav-item" id="nav-admin" onclick="showPage('admin')" style="display:none;"><span class="nav-icon">👑</span> Admin</button>
   <button class="nav-item call-btn" onclick="showCall()"><span class="nav-icon">🎙</span> Parla con Gianluca</button>
   <div class="sidebar-footer">
     <button class="nav-item" id="nav-impostazioni" onclick="showPage('impostazioni')" style="margin-bottom:8px;"><span class="nav-icon">⚙</span> Impostazioni</button>
@@ -525,6 +545,47 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
 
+  <!-- ADMIN -->
+  <div class="page" id="page-admin">
+    <div class="page-header">
+      <div class="page-title">👑 Dashboard Admin</div>
+      <div class="page-sub">Panoramica completa di tutti gli utenti e le attività</div>
+    </div>
+
+    <!-- Stats aggregate -->
+    <div class="admin-stat-grid">
+      <div class="admin-stat-card">
+        <div class="admin-stat-value" id="admin-tot-utenti">—</div>
+        <div class="admin-stat-label">Utenti totali</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-value" id="admin-tot-sessioni">—</div>
+        <div class="admin-stat-label">Sessioni totali</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-value" id="admin-tot-vittorie">—</div>
+        <div class="admin-stat-label">Vittorie registrate</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-value" id="admin-utenti-attivi">—</div>
+        <div class="admin-stat-label">Attivi questa settimana</div>
+      </div>
+    </div>
+
+    <!-- Lista utenti -->
+    <div class="card">
+      <div class="card-title">Utenti</div>
+      <div id="admin-users-list"><div style="font-size:13px;color:#999">Caricamento...</div></div>
+    </div>
+
+    <!-- Sessioni recenti -->
+    <div class="card">
+      <div class="card-title">Ultime sessioni</div>
+      <div id="admin-sessioni-list"><div style="font-size:13px;color:#999">Caricamento...</div></div>
+    </div>
+  </div>
+
+
 </div>
 
 <!-- MODALS -->
@@ -734,6 +795,7 @@ async function loadDashboard() {
     document.getElementById('user-name').textContent = nome;
     document.getElementById('user-email').textContent = currentUser.email;
     document.getElementById('user-avatar').textContent = iniziali;
+    checkAdmin();
     const coloreEmoji = { Giallo: '🟡', Blu: '🔵', Verde: '🟢', Rosso: '🔴' };
     document.getElementById('hero-badge').textContent = (coloreEmoji[profile.colore_dominante] || '⬜') + ' ' + (profile.colore_dominante || '—');
     ['giallo', 'blu', 'verde', 'rosso'].forEach(c => {
@@ -969,6 +1031,7 @@ function showPage(page) {
   const navEl = document.getElementById('nav-' + page);
   if (navEl) navEl.classList.add('active');
   if (page === 'impostazioni') loadImpostazioni();
+  if (page === 'admin') loadAdmin();
 }
 
 // CHECK-IN
@@ -1322,6 +1385,92 @@ async function handleLogout() {
   if (!confirm('Vuoi disconnetterti?')) return;
   await db.auth.signOut();
   location.reload();
+}
+
+
+// ADMIN
+const ADMIN_EMAIL = 'federicimichele8@gmail.com';
+
+function checkAdmin() {
+  if (currentUser && currentUser.email === ADMIN_EMAIL) {
+    const adminNav = document.getElementById('nav-admin');
+    if (adminNav) adminNav.style.display = 'flex';
+  }
+}
+
+async function loadAdmin() {
+  if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
+
+  // Carica tutti i profili
+  const { data: profiles } = await db.from('profiles').select('*').order('created_at', { ascending: false });
+  // Carica tutte le sessioni
+  const { data: allSessioni } = await db.from('sessioni').select('*').order('data_sessione', { ascending: false });
+  // Carica tutte le vittorie
+  const { data: allVittorie } = await db.from('vittorie').select('*');
+
+  if (!profiles) return;
+
+  // Stats aggregate
+  document.getElementById('admin-tot-utenti').textContent = profiles.length;
+  document.getElementById('admin-tot-sessioni').textContent = (allSessioni || []).filter(s => !s.riassunto?.startsWith('Check-in:')).length;
+  document.getElementById('admin-tot-vittorie').textContent = (allVittorie || []).length;
+
+  // Utenti attivi questa settimana
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 7);
+  const utentiAttivi = new Set((allSessioni || []).filter(s => s.data_sessione && new Date(s.data_sessione) >= cutoff).map(s => s.user_id));
+  document.getElementById('admin-utenti-attivi').textContent = utentiAttivi.size;
+
+  // Mappa sessioni per utente
+  const sessioniPerUtente = {};
+  const ultimaSessionePerUtente = {};
+  (allSessioni || []).forEach(s => {
+    if (!sessioniPerUtente[s.user_id]) sessioniPerUtente[s.user_id] = 0;
+    if (!s.riassunto?.startsWith('Check-in:')) sessioniPerUtente[s.user_id]++;
+    if (!ultimaSessionePerUtente[s.user_id]) ultimaSessionePerUtente[s.user_id] = s.data_sessione;
+  });
+
+  // Lista utenti
+  const coloreBadge = { Giallo: 'admin-badge-giallo', Blu: 'admin-badge-blu', Verde: 'admin-badge-verde', Rosso: 'admin-badge-rosso' };
+  const coloreEmoji = { Giallo: '🟡', Blu: '🔵', Verde: '🟢', Rosso: '🔴' };
+
+  document.getElementById('admin-users-list').innerHTML = profiles.map(p => {
+    const iniziali = (p.nome || p.email || '?').split(' ').map(function(n){return n[0];}).join('').toUpperCase().slice(0,2);
+    const nSessioni = sessioniPerUtente[p.id] || 0;
+    const ultimaSessione = ultimaSessionePerUtente[p.id] || '—';
+    const badgeClass = coloreBadge[p.colore_dominante] || 'admin-badge-giallo';
+    const avatarHtml = p.avatar_url
+      ? '<img src="' + p.avatar_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="avatar">'
+      : iniziali;
+
+    return '<div class="admin-user-row">' +
+      '<div class="admin-user-avatar">' + avatarHtml + '</div>' +
+      '<div class="admin-user-info">' +
+        '<div class="admin-user-name">' + escHtml(p.nome || '—') + '</div>' +
+        '<div class="admin-user-email">' + escHtml(p.email || '') + '</div>' +
+      '</div>' +
+      '<span class="admin-color-badge ' + badgeClass + '">' + (coloreEmoji[p.colore_dominante] || '⬜') + ' ' + (p.colore_dominante || '—') + '</span>' +
+      '<div class="admin-user-stats">' +
+        '<div class="admin-user-stat"><div class="admin-user-stat-value">' + nSessioni + '</div><div class="admin-user-stat-label">Sessioni</div></div>' +
+        '<div class="admin-user-stat"><div class="admin-user-stat-value" style="font-size:12px;color:#999;">' + ultimaSessione + '</div><div class="admin-user-stat-label">Ultima sessione</div></div>' +
+      '</div>' +
+    '</div>';
+  }).join('') || '<div style="font-size:13px;color:#999">Nessun utente</div>';
+
+  // Ultime 10 sessioni (non check-in)
+  const ultimeSessioni = (allSessioni || []).filter(s => !s.riassunto?.startsWith('Check-in:')).slice(0, 10);
+  const profileMap = {};
+  profiles.forEach(p => profileMap[p.id] = p);
+
+  document.getElementById('admin-sessioni-list').innerHTML = ultimeSessioni.map(s => {
+    const p = profileMap[s.user_id] || {};
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid #f0f0f0;">' +
+      '<div style="font-size:13px;color:#999;width:90px;flex-shrink:0;">' + (s.data_sessione || '—') + '</div>' +
+      '<div style="font-size:13px;font-weight:500;color:#333;width:120px;flex-shrink:0;">' + escHtml(p.nome || '—') + '</div>' +
+      '<div style="font-size:13px;color:#666;flex:1;">' + escHtml(s.blocco_emerso || s.riassunto || '—') + '</div>' +
+      '<div style="font-size:12px;color:#EF9F27;flex-shrink:0;">' + escHtml(s.impegno_preso || '') + '</div>' +
+    '</div>';
+  }).join('') || '<div style="font-size:13px;color:#999">Nessuna sessione</div>';
 }
 
 
